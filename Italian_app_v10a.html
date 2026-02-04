@@ -1,0 +1,904 @@
+HTML
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Magari, developed by Heather S - Complete</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e74c3c;
+            --highlight: #3498db;
+            --success: #2ecc71;
+            --bg: #f8f9fa;
+            --card-face: #ffffff; 
+            --card-text: #2c3e50;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--primary); 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+        }
+        
+        /* HEADER */
+        header { 
+            background: white;
+            color: var(--primary); 
+            padding: 15px 20px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+            z-index: 10;
+        }
+        
+        .logo-container { display: flex; align-items: center; gap: 10px; }
+        .app-logo {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #27ae60 33%, #ecf0f1 33%, #ecf0f1 66%, #c0392b 66%);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-size: 24px;
+        }
+        .header-title h1 { margin: 0; font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; }
+        .header-title div { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: #95a5a6; letter-spacing: 1px; }
+        
+        .share-btn {
+            background: #f0f2f5; border: none; color: var(--highlight);
+            width: 40px; height: 40px; border-radius: 50%;
+            font-size: 1.2rem; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .share-btn:active { background: #e0e0e0; transform: scale(0.95); }
+
+        /* DECK SELECTOR */
+        .deck-selector {
+            display: flex; justify-content: center; gap: 12px;
+            padding: 15px 20px; background: var(--bg);
+        }
+        .deck-btn {
+            flex: 1; padding: 12px; border-radius: 12px; border: none;
+            background: white; color: #95a5a6; font-weight: 700;
+            font-size: 0.9rem; cursor: pointer; text-align: center;
+            transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .deck-btn.active {
+            background: var(--primary); color: white;
+            box-shadow: 0 4px 10px rgba(44, 62, 80, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* NAVIGATION */
+        nav { 
+            display: flex; justify-content: center; gap: 20px; 
+            padding: 5px 20px 20px 20px; 
+        }
+        .nav-btn { 
+            background: none; border: none; padding: 5px 0;
+            font-weight: 600; color: #bdc3c7; cursor: pointer; 
+            font-size: 0.95rem; position: relative; transition: 0.2s;
+        }
+        .nav-btn.active { color: var(--accent); }
+        .nav-btn.active::after {
+            content: ''; position: absolute; bottom: -5px; left: 0;
+            width: 100%; height: 3px; background: var(--accent); border-radius: 2px;
+        }
+
+        /* MAIN AREA */
+        #app-container { 
+            flex: 1; display: flex; flex-direction: column; align-items: center; 
+            padding: 0 20px 20px 20px; overflow-y: auto; 
+        }
+        .hidden { display: none !important; }
+
+        /* FLASHCARDS */
+        .scene { 
+            width: 100%; max-width: 600px; height: 340px;    
+            perspective: 1000px; margin-bottom: 25px; cursor: pointer; 
+        }
+        .card { 
+            width: 100%; height: 100%; position: relative; 
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); 
+            transform-style: preserve-3d; 
+        }
+        .card.is-flipped { transform: rotateY(180deg); }
+        .card-face { 
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
+            border-radius: 24px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; padding: 30px; 
+            box-sizing: border-box; text-align: center; 
+        }
+        .card-front { 
+            background: var(--card-face); 
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05);
+        }
+        .card-back { 
+            background: var(--primary); color: white; transform: rotateY(180deg); 
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2);
+        }
+        .cat-label { 
+            font-size: 0.7rem; text-transform: uppercase; background: #f0f2f5; 
+            padding: 4px 8px; border-radius: 6px; color: #7f8c8d; 
+            margin-bottom: 20px; font-weight: 700; letter-spacing: 0.5px;
+        }
+        .word-main { font-size: 2.2rem; font-weight: 800; margin-bottom: 5px; line-height: 1.1; color: var(--primary); }
+        .word-sub { font-size: 1.6rem; margin-top: 10px; line-height: 1.4; font-weight: 600;}
+        .hint-text { margin-top: 20px; font-size: 0.9rem; color: #bdc3c7; font-style: italic; }
+
+        .controls { display: flex; gap: 40px; margin-bottom: 20px; }
+        .control-btn { 
+            background: white; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+            width: 60px; height: 60px; border-radius: 50%; font-size: 1.5rem; 
+            cursor: pointer; color: var(--primary); transition: transform 0.1s;
+        }
+        .control-btn:active { transform: scale(0.9); }
+
+        /* QUIZ */
+        .quiz-container { width: 100%; max-width: 600px; }
+        .option { 
+            background: white; padding: 20px; margin-bottom: 12px; border-radius: 16px; 
+            border: 2px solid transparent; cursor: pointer; font-size: 1.1rem; font-weight: 500;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: 0.2s;
+        }
+        .option.correct { background: #d4edda; border-color: #27ae60; color: #155724; }
+        .option.wrong { background: #f8d7da; border-color: #e74c3c; color: #721c24; }
+        .option.disabled { pointer-events: none; opacity: 0.8; }
+        #next-btn {
+            background-color: var(--primary); color: white; width: 100%; padding: 18px;
+            font-size: 1.1rem; border: none; border-radius: 16px; cursor: pointer;
+            margin-top: 20px; font-weight: bold; box-shadow: 0 10px 20px -5px rgba(44, 62, 80, 0.4);
+        }
+
+        /* BADGES */
+        .badge-case { 
+            background: white; padding: 25px; border-radius: 20px; width: 100%; 
+            max-width: 600px; margin-top: 10px; margin-bottom: 40px;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+        }
+        .badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; justify-items: center; }
+        .badge { 
+            text-align: center; opacity: 0.3; transition: 0.5s; filter: grayscale(100%); 
+            background: #f8f9fa; width: 100%; padding: 15px 5px; border-radius: 12px;
+        }
+        .badge.unlocked { opacity: 1; transform: scale(1.05); filter: grayscale(0%); background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .badge-icon { font-size: 2.2rem; margin-bottom: 8px; display: block; }
+        .badge-title { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--primary); letter-spacing: 0.5px; }
+        .progress-bar { width: 100%; height: 8px; background: #e0e0e0; margin-bottom: 25px; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #2ecc71, #27ae60); width: 0%; transition: width 0.3s ease-out; }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container">
+        <div class="app-logo">🇮🇹</div>
+        <div class="header-title">
+            <h1>MAGARI</h1>
+            <div>Advanced Italian</div>
+        </div>
+    </div>
+    <button class="share-btn" onclick="shareApp()">📤</button>
+</header>
+
+<div class="deck-selector">
+    <button class="deck-btn active" id="deck-vocab" onclick="setDeck('vocab')">Vocabolario</button>
+    <button class="deck-btn" id="deck-cong" onclick="setDeck('cong')">Congiuntivo</button>
+</div>
+
+<nav>
+    <button class="nav-btn active" id="nav-flashcards" onclick="setMode('flashcards')">Cards</button>
+    <button class="nav-btn" id="nav-quiz" onclick="setMode('quiz')">Quiz</button>
+    <button class="nav-btn" id="nav-match" onclick="setMode('match')">Match</button>
+</nav>
+
+<div id="app-container">
+    <div id="view-flashcards" class="mode-view">
+        <div class="scene" onclick="flipCard()">
+            <div class="card">
+                <div class="card-face card-front">
+                    <div class="cat-label" id="fc-cat">Category</div>
+                    <div class="word-main" id="fc-ita">Italiano</div>
+                    <div class="hint-text">(Tap card to flip)</div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="word-sub" id="fc-eng">English</div>
+                    <div class="hint-text" id="fc-note" style="color: #aeb6bf;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="controls">
+            <button class="control-btn" onclick="nextCard(-1)">←</button>
+            <button class="control-btn" onclick="nextCard(1)">→</button>
+        </div>
+    </div>
+
+    <div id="view-quiz" class="mode-view hidden">
+        <div class="quiz-container">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.8rem; font-weight:700; color:#95a5a6;">
+                <span>MASTERY</span>
+                <span id="quiz-count">0/0</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="quiz-progress"></div></div>
+            <div style="font-size: 1.3rem; text-align: center; margin-bottom: 25px; font-weight: 800; color: var(--primary);">
+                Cosa significa: <br>
+                <span id="quiz-q" style="color:var(--accent); font-size:2rem; display:block; margin-top:10px; line-height:1.2;">?</span>
+            </div>
+            <div id="quiz-options"></div>
+            <div id="quiz-msg" style="height:30px; text-align:center; font-weight:bold; margin-top:10px; font-size: 1.1rem;"></div>
+            <button id="next-btn" class="hidden" onclick="nextQuizQuestion()">Next Question →</button>
+        </div>
+    </div>
+
+    <div id="view-match" class="mode-view hidden">
+        <div style="text-align:center; margin-bottom:20px; font-weight:bold; color: #95a5a6;">Tap pairs to clear the board</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 500px;" id="match-grid"></div>
+    </div>
+
+    <div class="badge-case">
+        <h3 style="margin:0 0 20px 0; font-size:1rem; text-align:center; color: #95a5a6; text-transform:uppercase; letter-spacing:1px;">I Tuoi Trofei</h3>
+        <div class="badge-grid">
+            <div class="badge" id="b-wolf"><span class="badge-icon">🐺</span><div class="badge-title">In Bocca al Lupo<br>(1 pt)</div></div>
+            <div class="badge" id="b-fire"><span class="badge-icon">🔥</span><div class="badge-title">On Fire<br>(Streak 5)</div></div>
+            <div class="badge" id="b-brain"><span class="badge-icon">🧠</span><div class="badge-title">Il Maestro<br>(20 pts)</div></div>
+            <div class="badge" id="b-vesuvio"><span class="badge-icon">🌋</span><div class="badge-title">Il Vesuvio<br>(30 pts)</div></div>
+            <div class="badge" id="b-vespa"><span class="badge-icon">🛵</span><div class="badge-title">La Vespa<br>(40 pts)</div></div>
+            <div class="badge" id="b-stella"><span class="badge-icon">🌟</span><div class="badge-title">La Stella<br>(50 pts)</div></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const motivations = ["Complimenti!", "Ottimo Lavoro!", "Ben fatto!", "Continua così!", "Forza!", "Ce la puoi fare!", "Non mollare!", "Grande!"];
+
+// --- COMPLETE DATASET ---
+const mainData = [
+    // Connecting Words [cite: 5]
+    {i:"addirittura", e:"actually, even; emphatic", c:"Connecting"},
+    {i:"alla fine", e:"at the end", c:"Connecting"},
+    {i:"a causa di", e:"because of", c:"Connecting"},
+    {i:"almeno", e:"at least", c:"Connecting"},
+    {i:"altrettanto", e:"the same to you", c:"Connecting"},
+    {i:"altrimenti", e:"otherwise", c:"Connecting"},
+    {i:"anzi", e:"on the contrary; in fact", c:"Connecting"},
+    {i:"a proposito", e:"by the way", c:"Connecting"},
+    {i:"basata su", e:"based on", c:"Connecting"},
+    {i:"ben altro", e:"much more", c:"Connecting"},
+    {i:"boh", e:"beats me, who knows?", c:"Connecting"},
+    {i:"che ne so", e:"how should I know?", c:"Connecting"},
+    {i:"cioè", e:"that is, you know...", c:"Connecting"},
+    {i:"come mai?", e:"how come?", c:"Connecting"},
+    {i:"comunque", e:"however, anyway", c:"Connecting"},
+    {i:"comunque sia", e:"in any case, be that as it may", c:"Connecting"},
+    {i:"dappertutto", e:"all over", c:"Connecting"},
+    {i:"del genere", e:"of that kind/type", c:"Connecting"},
+    {i:"dunque", e:"so, then, therefore", c:"Connecting"},
+    {i:"di nuovo", e:"again", c:"Connecting"},
+    {i:"di solito", e:"usually", c:"Connecting"},
+    {i:"entrambe / entrambi", e:"both of them", c:"Connecting"},
+    {i:"eppure", e:"and yet", c:"Connecting"},
+    {i:"fino", e:"until", c:"Connecting"},
+    {i:"fino adesso", e:"until now", c:"Connecting"},
+    {i:"finora", e:"until now", c:"Connecting"},
+    {i:"giustamente", e:"rightly so", c:"Connecting"},
+    {i:"il che mi rende", e:"which makes me...", c:"Connecting"},
+    {i:"indubbio", e:"undoubted", c:"Connecting"},
+    {i:"indovina perché", e:"guess why", c:"Connecting"},
+    {i:"infatti", e:"in fact; indeed", c:"Connecting"},
+    {i:"insomma", e:"in short, after all", c:"Connecting"},
+    {i:"macché", e:"no way! not at all", c:"Connecting"},
+    {i:"malgrado", e:"despite", c:"Connecting"},
+    {i:"mica", e:"not at all", c:"Connecting"},
+    {i:"neanche / nemmeno", e:"not even", c:"Connecting"},
+    {i:"nonostante", e:"despite", c:"Connecting"},
+    {i:"oltretutto", e:"moreover", c:"Connecting"},
+    {i:"oppure", e:"or else, otherwise", c:"Connecting"},
+    {i:"ormai", e:"by now, at this point", c:"Connecting"},
+    {i:"perciò", e:"therefore, so", c:"Connecting"},
+    {i:"però", e:"but, however", c:"Connecting"},
+    {i:"piuttosto", e:"rather, instead", c:"Connecting"},
+    {i:"pur", e:"while/although (short)", c:"Connecting"},
+    {i:"pure", e:"also, too, even", c:"Connecting"},
+    {i:"quasi", e:"almost", c:"Connecting"},
+    {i:"quindi", e:"therefore", c:"Connecting"},
+    {i:"senza dubbio", e:"without a doubt", c:"Connecting"},
+    {i:"siccome", e:"since", c:"Connecting"},
+    {i:"senza impegni", e:"without commitments", c:"Connecting"},
+    {i:"soprattutto", e:"above all", c:"Connecting"},
+    {i:"tipo", e:"like, kind of (filler)", c:"Connecting"},
+    {i:"tutti e due", e:"both of them", c:"Connecting"},
+    {i:"altre due", e:"two more", c:"Connecting"},
+    {i:"tutto ciò", e:"everything that...", c:"Connecting"},
+    {i:"vale a dire", e:"that is to say", c:"Connecting"},
+
+    // Core Verbs [cite: 7]
+    {i:"abboccare", e:"to fall for (bait)", c:"Verbs"},
+    {i:"aggiungere", e:"to add to", c:"Verbs", n:"Kitchen"},
+    {i:"arrangiarsi", e:"to make do", c:"Verbs"},
+    {i:"raggiungere", e:"to have reached", c:"Verbs"},
+    {i:"aggiornare", e:"to update", c:"Verbs"},
+    {i:"basare", e:"to base on", c:"Verbs"},
+    {i:"caricare", e:"to load/charge", c:"Verbs"},
+    {i:"cazzeggiare", e:"to fool around", c:"Verbs", n:"Vulgar"},
+    {i:"contare su", e:"to count on", c:"Verbs"},
+    {i:"mordere", e:"to bite", c:"Verbs"},
+    {i:"sfidare", e:"to challenge", c:"Verbs"},
+    {i:"rovesciare", e:"to spill/knock over", c:"Verbs"},
+    {i:"annusare", e:"to sniff/smell", c:"Verbs"},
+    {i:"decollare", e:"to take off/launch", c:"Verbs"},
+    {i:"atterrare", e:"to land", c:"Verbs"},
+    {i:"bollare", e:"to stamp", c:"Verbs"},
+    {i:"cogliere", e:"to gather", c:"Verbs"},
+    {i:"raccogliere", e:"to collect", c:"Verbs"},
+    {i:"costare", e:"to cost", c:"Verbs"},
+    {i:"fregarsene", e:"to not care", c:"Verbs", n:"Crude"},
+    {i:"googlare", e:"to Google", c:"Verbs"},
+    {i:"mancare", e:"to miss", c:"Verbs"},
+    {i:"prestare", e:"to lend", c:"Verbs"},
+    {i:"patire", e:"to suffer/endure", c:"Verbs"},
+    {i:"restituire", e:"to return/give back", c:"Verbs"},
+    {i:"rientrare", e:"to return (from trip)", c:"Verbs"},
+    {i:"ridere", e:"to laugh", c:"Verbs"},
+    {i:"ricordare", e:"to remind/remember", c:"Verbs"},
+    {i:"richiamare", e:"to recall/remind", c:"Verbs"},
+    {i:"ringraziare", e:"to thank", c:"Verbs"},
+    {i:"ficcarsi", e:"to sneak into", c:"Verbs"},
+    {i:"rotolare", e:"to roll", c:"Verbs", n:"Kitchen"},
+    {i:"sbronzare", e:"to get drunk", c:"Verbs"},
+    {i:"scartare", e:"to discard", c:"Verbs"},
+    {i:"rifiutare", e:"to reject", c:"Verbs"},
+    {i:"riuscire", e:"to succeed/be able", c:"Verbs"},
+    {i:"negare", e:"to deny", c:"Verbs"},
+    {i:"scippare", e:"to snatch (purse)", c:"Verbs"},
+    {i:"scroccare", e:"to freeload", c:"Verbs"},
+    {i:"spiluccare", e:"to nibble/sample", c:"Verbs", n:"Kitchen"},
+    {i:"sdraiarsi", e:"to lie down", c:"Verbs"},
+    {i:"stendere", e:"to lay down/flatten", c:"Verbs"},
+    {i:"stemperare", e:"to dilute/dissolve", c:"Verbs", n:"Kitchen"},
+    {i:"trasferirsi", e:"to move (house)", c:"Verbs"},
+    {i:"volare", e:"to fly", c:"Verbs"},
+    {i:"rievocare", e:"to recall", c:"Verbs"},
+    {i:"riscontrare", e:"to find/verify", c:"Verbs"},
+    {i:"depennare", e:"to delete/cross off", c:"Verbs"},
+    {i:"risparmiare", e:"to save money", c:"Verbs"},
+    {i:"proibire", e:"to prohibit", c:"Verbs"},
+    {i:"vietare", e:"to forbid (formal)", c:"Verbs"},
+    {i:"rassegnare", e:"to be resigned to", c:"Verbs"},
+    {i:"voltare", e:"to turn around", c:"Verbs"},
+    {i:"svoltare", e:"to turn (driving)", c:"Verbs"},
+    {i:"sostenere", e:"to claim/state", c:"Verbs"},
+    {i:"sussurrare", e:"to whisper", c:"Verbs"},
+    {i:"mormorare", e:"to murmur", c:"Verbs"},
+    {i:"puzzare", e:"to stink", c:"Verbs"},
+    {i:"tenerci a", e:"to care about", c:"Verbs"},
+
+    // Verb Expressions (Andare, Avere, etc.) [cite: 10, 12, 14, 16, 18, 20, 22, 24, 26, 28]
+    {i:"andare in tilt", e:"to go crazy for", c:"Expr: Andare"},
+    {i:"andare matta per", e:"to go crazy for", c:"Expr: Andare"},
+    {i:"andare a trovare", e:"to visit someone", c:"Expr: Andare"},
+    {i:"andare d’accordo", e:"to get along with", c:"Expr: Andare"},
+    {i:"me ne vado", e:"I'm leaving", c:"Expr: Andare"},
+    {i:"andare al dunque", e:"to get straight to the point", c:"Expr: Andare"},
+    {i:"aiutare a", e:"to help to...", c:"Expr: Aiutare"},
+    {i:"avere a che fare", e:"to have to do with", c:"Expr: Avere"},
+    {i:"avere un feeling", e:"to have chemistry", c:"Expr: Avere"},
+    {i:"avere un chiodo fisso", e:"to be obsessed with", c:"Expr: Avere"},
+    {i:"avere la luna storta", e:"to be in a bad mood", c:"Expr: Avere"},
+    {i:"avere fin sopra i capelli", e:"to be fed up with", c:"Expr: Avere"},
+    {i:"avere l’acquolina in bocca", e:"mouth watering", c:"Expr: Avere"},
+    {i:"dare fastidio", e:"to bother/annoy", c:"Expr: Dare"},
+    {i:"dare sui nervi", e:"to get on one's nerves", c:"Expr: Dare"},
+    {i:"non dare tregua", e:"relentless/no break", c:"Expr: Dare"},
+    {i:"dare spazio", e:"to give space/encourage", c:"Expr: Dare"},
+    {i:"dare un’occhiata", e:"to take a look", c:"Expr: Dare"},
+    {i:"dare i numeri", e:"to lose it/talk nonsense", c:"Expr: Dare"},
+    {i:"dare voce", e:"to share opinion/voice", c:"Expr: Dare"},
+    {i:"dare buca", e:"to stand someone up", c:"Expr: Dare"},
+    {i:"dare per scontato", e:"to take for granted", c:"Expr: Dare"},
+    {i:"darsi a", e:"to devote oneself to", c:"Expr: Dare"},
+    {i:"dare retta", e:"to heed advice", c:"Expr: Dare"},
+    {i:"stufarsi di", e:"to get fed up with", c:"Expr: Essere"},
+    {i:"essere in collera", e:"to be angry", c:"Expr: Essere"},
+    {i:"non ne posso più", e:"I can't take it anymore", c:"Expr: Essere"},
+    {i:"essere in alto mare", e:"in deep water (far from solution)", c:"Expr: Essere"},
+    {i:"fare la coda", e:"to stay in line", c:"Expr: Fare"},
+    {i:"fare la gavetta", e:"work way up ladder", c:"Expr: Fare"},
+    {i:"fare due passi", e:"take a short walk", c:"Expr: Fare"},
+    {i:"fare due chiacchiere", e:"have a chat", c:"Expr: Fare"},
+    {i:"si fa per dire", e:"so to speak", c:"Expr: Fare"},
+    {i:"fare la civetta", e:"flirting", c:"Expr: Fare"},
+    {i:"fa al caso mio", e:"just what I needed", c:"Expr: Fare"},
+    {i:"mandare al diavolo", e:"go to hell", c:"Expr: Mandare"},
+    {i:"si mette male", e:"things looking bad", c:"Expr: Mettere"},
+    {i:"mettersi a", e:"start doing something", c:"Expr: Mettere"},
+    {i:"mettercela tutta", e:"give it your all", c:"Expr: Mettere"},
+    {i:"mettere in conto", e:"take into account", c:"Expr: Mettere"},
+    {i:"metterci una pietra sopra", e:"forget about it/move on", c:"Expr: Mettere"},
+    {i:"mettere le mani avanti", e:"make excuses in advance", c:"Expr: Mettere"},
+    {i:"passare a prendere", e:"to pick someone up", c:"Expr: Passare"},
+    {i:"non te la prendere", e:"don't get upset", c:"Expr: Prendere"},
+    {i:"due piccioni con una fava", e:"two birds one stone", c:"Expr: Prendere"},
+
+    // Everyday Expressions [cite: 31]
+    {i:"a galla", e:"afloat", c:"Everyday"},
+    {i:"alla buona", e:"simple/down to earth", c:"Everyday"},
+    {i:"concediti", e:"treat yourself", c:"Everyday"},
+    {i:"ci sta", e:"I'm down for that", c:"Everyday"},
+    {i:"col cavolo!", e:"no way!", c:"Everyday"},
+    {i:"il solito", e:"the usual", c:"Everyday"},
+    {i:"basta così", e:"that's it", c:"Everyday"},
+    {i:"meno male", e:"thank goodness", c:"Everyday"},
+    {i:"che fatica", e:"how exhausting", c:"Everyday"},
+    {i:"schiaccio un pisolino", e:"taking a nap", c:"Everyday"},
+    {i:"scialla", e:"relax/chill", c:"Everyday"},
+    {i:"ti sta bene!", e:"serves you right", c:"Everyday"},
+    {i:"uffa!", e:"ugh! (frustration)", c:"Everyday"},
+    {i:"vale la pena", e:"worth it", c:"Everyday"},
+    {i:"pian piano", e:"little by little", c:"Everyday"},
+    {i:"pagare in contanti", e:"pay in cash", c:"Everyday"},
+    {i:"buon rientro!", e:"welcome back (from trip)", c:"Everyday"},
+    {i:"mi sono pentito", e:"I regretted", c:"Everyday"},
+    {i:"ci penso io", e:"I'll handle it", c:"Everyday"},
+    {i:"mi raccomando", e:"please/listen to me", c:"Everyday"},
+    {i:"porca miseria", e:"damn it", c:"Everyday"},
+    {i:"perdersi d’animo", e:"to lose heart", c:"Everyday"},
+    {i:"smettila!", e:"stop it!", c:"Everyday"},
+    {i:"pazzesco", e:"incredible", c:"Everyday"},
+    {i:"guarda caso", e:"imagine that", c:"Everyday"},
+
+    // Idioms & Slang [cite: 33, 35]
+    {i:"a fagiolo", e:"perfectly/just right", c:"Idiom"},
+    {i:"chi dorme non piglia pesci", e:"you snooze you lose", c:"Idiom"},
+    {i:"di male in peggio", e:"from bad to worse", c:"Idiom"},
+    {i:"l’erba del vicino è sempre più verde", e:"grass is greener", c:"Idiom"},
+    {i:"ogni lasciata è persa", e:"opportunity never knocks twice", c:"Idiom"},
+    {i:"non me ne frega niente", e:"I don't give a damn", c:"Idiom"},
+    {i:"pioggia a catinelle", e:"pouring rain", c:"Idiom"},
+    {i:"tutto fumo e niente arrosto", e:"all smoke no meat", c:"Idiom"},
+    {i:"a bizzeffe", e:"tons/a lot", c:"Slang"},
+    {i:"che macello!", e:"what a mess!", c:"Slang"},
+    {i:"che sbatti!", e:"what a hassle!", c:"Slang"},
+    {i:"che sfiga!", e:"bummer!", c:"Slang"},
+    {i:"na cifra", e:"a ton (Roman)", c:"Slang"},
+    {i:"un botto", e:"a lot", c:"Slang"},
+    {i:"rompiballe", e:"ball breaker", c:"Slang", n:"Vulgar"},
+
+    // Kitchen & Dining [cite: 38]
+    {i:"grembiule", e:"apron", c:"Kitchen"},
+    {i:"bollitore", e:"kettle", c:"Kitchen"},
+    {i:"mestolo", e:"ladle", c:"Kitchen"},
+    {i:"pirofila", e:"baking dish", c:"Kitchen"},
+    {i:"frusta", e:"whisk", c:"Kitchen"},
+    {i:"antiaderente", e:"nonstick", c:"Kitchen"},
+    {i:"ciotola", e:"bowl", c:"Kitchen"},
+    {i:"intingolo", e:"sauce", c:"Kitchen"},
+    {i:"integrale", e:"whole wheat", c:"Kitchen"},
+    {i:"muffa", e:"mold", c:"Kitchen"},
+    {i:"senza nocciole", e:"pitted (olives)", c:"Kitchen"},
+    {i:"tacchino", e:"turkey", c:"Kitchen"},
+    {i:"caco", e:"persimmon", c:"Kitchen"},
+    {i:"cenone", e:"huge dinner", c:"Dining"},
+    {i:"fiasco", e:"straw bottle", c:"Wine"},
+    {i:"pinzimonio", e:"veggie dip", c:"Dining"},
+    {i:"portata", e:"course/dish", c:"Dining"},
+    {i:"salatini", e:"crackers", c:"Dining"},
+    {i:"stuzzichino", e:"appetizer", c:"Dining"},
+    {i:"sgranocchiare", e:"to snack", c:"Dining"},
+
+    // Work & Audit [cite: 40, 42]
+    {i:"falegname", e:"carpenter", c:"Work"},
+    {i:"autista", e:"chauffeur", c:"Work"},
+    {i:"pendolare", e:"commuter", c:"Work"},
+    {i:"socio d’affari", e:"business partner", c:"Work"},
+    {i:"stipendio", e:"salary", c:"Work"},
+    {i:"risorse umane", e:"HR", c:"Work"},
+    {i:"assunzione", e:"recruitment", c:"Work"},
+    {i:"fatturato", e:"revenue/turnover", c:"Audit"},
+    {i:"profitto", e:"profit", c:"Audit"},
+    {i:"perdita", e:"loss", c:"Audit"},
+    {i:"bilancio", e:"budget/statement", c:"Audit"},
+    {i:"concorrente", e:"competitor", c:"Audit"},
+    {i:"valutazione rischi", e:"risk assessment", c:"Audit"},
+    {i:"audit operativo", e:"operational audit", c:"Audit"},
+    {i:"audit investigativo", e:"forensic audit", c:"Audit"},
+    {i:"mappatura rischi", e:"risk mapping", c:"Audit"},
+    {i:"direttore internal audit", e:"Head of IA", c:"Audit"},
+    {i:"conformità SOX", e:"SOX compliance", c:"Audit"},
+    {i:"carenza significativa", e:"Significant Deficiency", c:"Audit"},
+    {i:"segregazione dei compiti", e:"SoD", c:"Audit"},
+    {i:"campionamento", e:"sampling", c:"Audit"},
+
+    // Misc Categories [cite: 44, 46, 48, 50, 52]
+    {i:"cuscino", e:"pillow", c:"Home"},
+    {i:"rubinetto", e:"faucet", c:"Home"},
+    {i:"spazzatura", e:"trash", c:"Home"},
+    {i:"pattumiera", e:"trash can", c:"Home"},
+    {i:"capotta", e:"convertible top", c:"Car"},
+    {i:"scacco matto", e:"checkmate", c:"Games"},
+    {i:"alfiere", e:"bishop (chess)", c:"Games"},
+    {i:"fante", e:"jack (cards)", c:"Games"},
+    {i:"asso", e:"ace", c:"Games"},
+    {i:"casco", e:"helmet", c:"Clothing"},
+    {i:"pelliccia", e:"fur coat", c:"Clothing"},
+    {i:"colibrì", e:"hummingbird", c:"Nature"},
+    {i:"zanzare", e:"mosquitos", c:"Nature"},
+    {i:"brina", e:"dew", c:"Nature"},
+    {i:"scoiattolo", e:"squirrel", c:"Nature"},
+    {i:"talpa", e:"mole", c:"Nature"},
+
+    // People & Feelings [cite: 54, 56]
+    {i:"alta società", e:"high society", c:"People"},
+    {i:"amico del cuore", e:"best friend", c:"People"},
+    {i:"gentiluomo", e:"gentleman", c:"People"},
+    {i:"scappatella", e:"fling", c:"People"},
+    {i:"mammone", e:"mama's boy", c:"People"},
+    {i:"stronzo", e:"jerk", c:"People", n:"Vulgar"},
+    {i:"pantofolaio", e:"homebody", c:"People"},
+    {i:"furbo", e:"clever/cunning", c:"People"},
+    {i:"viziato", e:"spoiled", c:"People"},
+    {i:"agio", e:"ease/comfort", c:"Feeling"},
+    {i:"rassicurante", e:"comforting", c:"Feeling"},
+    {i:"esaurito", e:"exhausted", c:"Feeling"},
+    {i:"stanca morta", e:"dead tired", c:"Feeling"},
+    {i:"sciocco", e:"foolish", c:"Feeling"},
+    {i:"affascinante", e:"fascinating", c:"Feeling"},
+    {i:"strabiliante", e:"amazing", c:"Feeling"},
+    {i:"agghiacciante", e:"chilling", c:"Feeling"},
+    {i:"flemma", e:"composure", c:"Feeling"},
+
+    // Body & Misc [cite: 58, 60, 62, 64, 66]
+    {i:"gomito", e:"elbow", c:"Body"},
+    {i:"pancia", e:"belly", c:"Body"},
+    {i:"polpaccio", e:"calf", c:"Body"},
+    {i:"caviglia", e:"ankle", c:"Body"},
+    {i:"spuntatina", e:"hair trim", c:"Body"},
+    {i:"mèches", e:"highlights", c:"Body"},
+    {i:"campo", e:"course/field", c:"Sports"},
+    {i:"buca", e:"hole", c:"Sports"},
+    {i:"bollettino", e:"newsletter", c:"Media"},
+    {i:"dépliant", e:"brochure", c:"Media"},
+    {i:"sottotitolo", e:"subtitle", c:"Media"},
+    {i:"efficiente", e:"efficient", c:"Abstract"},
+    {i:"efficace", e:"effective", c:"Abstract"},
+    {i:"approfondito", e:"in-depth", c:"Abstract"},
+    {i:"notevole", e:"remarkable", c:"Abstract"},
+    {i:"rinomato", e:"renowned", c:"Abstract"},
+    {i:"barzelletta", e:"joke", c:"Misc"},
+    {i:"bugia", e:"lie", c:"Misc"},
+    {i:"pettegolezzi", e:"gossip", c:"Misc"},
+    {i:"guinzaglio", e:"leash", c:"Misc"},
+    {i:"pozzanghera", e:"puddle", c:"Misc"},
+    {i:"ricatto", e:"blackmail", c:"Misc"},
+    {i:"ruggine", e:"rust", c:"Misc"},
+    {i:"singhiozzo", e:"hiccups", c:"Misc"},
+    {i:"arcobaleno", e:"rainbow", c:"Misc"},
+
+    // Time & Phrases [cite: 68, 71, 73, 75]
+    {i:"fra poco", e:"soon", c:"Time"},
+    {i:"mensile", e:"monthly", c:"Time"},
+    {i:"trimestrale", e:"quarterly", c:"Time"},
+    {i:"angosciato", e:"anguished", c:"Phrase"},
+    {i:"mi manchi", e:"I miss you", c:"Phrase"},
+    {i:"colpo di fulmine", e:"love at first sight", c:"Phrase"},
+    {i:"viaggio di nozze", e:"honeymoon", c:"Phrase"},
+    {i:"spezzare il cuore", e:"heartbreak", c:"Phrase"},
+    {i:"me la godo", e:"I enjoy life", c:"Phrase"},
+    {i:"me la cavo", e:"I get by", c:"Phrase"},
+    {i:"testa di rapa", e:"stubborn", c:"Phrase"}
+];
+
+const congiuntivoData = [
+    // Grammar & Specific Triggers 
+    {i:"Benché / Sebbene", e:"Although/Even though (Requires Subj.)", c:"Congiuntivo"},
+    {i:"Purché", e:"Provided that (Requires Subj.)", c:"Congiuntivo"},
+    {i:"Magari", e:"If only! (Imperfect Subj.)", c:"Congiuntivo"},
+    {i:"Spero sia possibile...", e:"I hope it is possible...", c:"Congiuntivo"},
+    {i:"Penso che il prezzo sia...", e:"I think the price is...", c:"Congiuntivo"},
+    {i:"Temo che tu abbia fatto...", e:"I fear you have done...", c:"Congiuntivo"},
+    {i:"Bisogna che...", e:"It is necessary that...", c:"Congiuntivo"},
+    {i:"Prima che...", e:"Before...", c:"Congiuntivo"},
+    {i:"Senza che...", e:"Without...", c:"Congiuntivo"},
+    {i:"A meno che...", e:"Unless...", c:"Congiuntivo"},
+    {i:"È probabile che...", e:"It is probable that...", c:"Congiuntivo"},
+    {i:"Prevedo che dovremo...", e:"I foresee we will have to...", c:"Congiuntivo"},
+    {i:"Dubito che...", e:"I doubt that...", c:"Congiuntivo"},
+    {i:"Temo che abbia fatto", e:"I fear he/she has done", c:"Congiuntivo"},
+    {i:"Credo che sia", e:"I believe it is", c:"Congiuntivo"},
+    {i:"Voglio che tu vada", e:"I want you to go", c:"Congiuntivo"}
+];
+
+// --- STATE ---
+let state = { 
+    score: 0, streak: 0, unlocked: [], 
+    currentPool: [], 
+    activeData: mainData, 
+    cardIdx: 0, currentQuizItem: null, mode: 'flashcards' 
+};
+
+// --- SHARE FUNCTION ---
+function shareApp() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Magari - Advanced Italian',
+            text: 'Practice Advanced Italian with Magari!',
+            url: window.location.href
+        }).catch(console.error);
+    } else {
+        alert("Copy this link to share: " + window.location.href);
+    }
+}
+
+// --- DECK HANDLING ---
+function setDeck(deckType) {
+    document.getElementById('deck-vocab').classList.remove('active');
+    document.getElementById('deck-cong').classList.remove('active');
+    
+    if (deckType === 'vocab') {
+        state.activeData = mainData;
+        document.getElementById('deck-vocab').classList.add('active');
+    } else {
+        state.activeData = congiuntivoData;
+        document.getElementById('deck-cong').classList.add('active');
+    }
+
+    initPool(state.activeData);
+    state.cardIdx = 0;
+    
+    if(state.mode === 'flashcards') loadCard(0);
+    if(state.mode === 'quiz') nextQuizQuestion();
+    if(state.mode === 'match') loadMatch();
+}
+
+function initPool(dataset) {
+    // Shuffle the entire pool on init
+    state.currentPool = [...dataset].sort(() => Math.random() - 0.5);
+    updateProgress();
+}
+
+// --- MODE HANDLING ---
+function setMode(mode) {
+    document.querySelectorAll('.mode-view').forEach(d => d.classList.add('hidden'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`view-${mode}`).classList.remove('hidden');
+    document.getElementById(`nav-${mode}`).classList.add('active');
+    
+    state.mode = mode;
+
+    if(mode === 'flashcards') loadCard(state.cardIdx);
+    if(mode === 'quiz') nextQuizQuestion();
+    if(mode === 'match') loadMatch();
+}
+
+// --- FLASHCARDS ---
+function loadCard(idx) {
+    if(idx < 0) idx = state.activeData.length - 1;
+    if(idx >= state.activeData.length) idx = 0;
+    state.cardIdx = idx;
+    
+    const card = document.querySelector('.card');
+    card.classList.remove('is-flipped');
+    
+    setTimeout(() => {
+        const item = state.activeData[idx];
+        document.getElementById('fc-cat').innerText = item.c;
+        document.getElementById('fc-ita').innerText = item.i;
+        document.getElementById('fc-eng').innerText = item.e;
+        document.getElementById('fc-note').innerText = item.n ? `Note: ${item.n}` : "";
+    }, 200); 
+}
+
+function flipCard() {
+    document.querySelector('.card').classList.toggle('is-flipped');
+}
+
+function nextCard(dir) {
+    const card = document.querySelector('.card');
+    if(card.classList.contains('is-flipped')) {
+        card.classList.remove('is-flipped');
+        setTimeout(() => loadCard(state.cardIdx + dir), 250);
+    } else {
+        loadCard(state.cardIdx + dir);
+    }
+}
+
+// --- QUIZ ---
+function nextQuizQuestion() {
+    document.getElementById('quiz-options').innerHTML = '';
+    document.getElementById('quiz-msg').innerText = '';
+    document.getElementById('next-btn').classList.add('hidden');
+
+    if(state.currentPool.length === 0) {
+        document.getElementById('quiz-q').innerText = "Finito!";
+        document.getElementById('quiz-msg').innerText = "Hai completato il mazzo!";
+        document.getElementById('quiz-msg').style.color = "var(--primary)";
+        return;
+    }
+
+    const q = state.currentPool[0]; // Take from shuffled pool
+    state.currentQuizItem = q; 
+
+    document.getElementById('quiz-q').innerText = q.i;
+    updateProgress();
+
+    let opts = [q];
+    let fullSource = state.activeData; 
+    while(opts.length < 4 && fullSource.length >= 4) {
+        let r = fullSource[Math.floor(Math.random() * fullSource.length)];
+        if(!opts.includes(r)) opts.push(r);
+    }
+    if(fullSource.length < 4) opts = [...fullSource];
+    
+    opts.sort(() => Math.random() - 0.5);
+
+    const container = document.getElementById('quiz-options');
+    opts.forEach(opt => {
+        let btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt.e;
+        btn.onclick = () => handleQuizAnswer(btn, opt, q);
+        container.appendChild(btn);
+    });
+}
+
+function handleQuizAnswer(el, selected, correct) {
+    if(el.classList.contains('disabled')) return;
+    document.querySelectorAll('.option').forEach(o => o.classList.add('disabled'));
+
+    if(selected === correct) {
+        el.classList.add('correct');
+        const msg = motivations[Math.floor(Math.random() * motivations.length)];
+        document.getElementById('quiz-msg').innerText = msg + " (+1)";
+        document.getElementById('quiz-msg').style.color = "#27ae60";
+        
+        state.score++;
+        state.streak++;
+        state.currentPool.shift(); // Remove from pool
+        checkBadges();
+    } else {
+        el.classList.add('wrong');
+        state.streak = 0;
+        document.getElementById('quiz-msg').innerText = `Sbagliato. Risposta: ${correct.e}`;
+        document.getElementById('quiz-msg').style.color = "#e74c3c";
+        // Move to end of queue to try again
+        state.currentPool.push(state.currentPool.shift());
+    }
+    document.getElementById('next-btn').classList.remove('hidden');
+    updateProgress();
+}
+
+function updateProgress() {
+    const total = state.activeData.length;
+    const remaining = state.currentPool.length;
+    const done = total - remaining;
+    document.getElementById('quiz-count').innerText = `${done}/${total}`;
+    const pct = (done / total) * 100;
+    document.getElementById('quiz-progress').style.width = `${pct}%`;
+}
+
+// --- MATCHING ---
+let selectedTile = null;
+function loadMatch() {
+    const grid = document.getElementById('match-grid');
+    grid.innerHTML = '';
+    selectedTile = null;
+
+    let subset = [];
+    let tempPool = [...state.activeData];
+    // Ensure we have enough items
+    if (tempPool.length < 6) {
+         subset = [...tempPool];
+    } else {
+        while(subset.length < 6) {
+            let r = Math.floor(Math.random() * tempPool.length);
+            subset.push(tempPool[r]);
+            tempPool.splice(r, 1);
+        }
+    }
+
+    let tiles = [];
+    subset.forEach(item => {
+        tiles.push({id: item.i, txt: item.i, type: 'ita'});
+        tiles.push({id: item.i, txt: item.e, type: 'eng'});
+    });
+    tiles.sort(() => Math.random() - 0.5);
+
+    tiles.forEach(t => {
+        let el = document.createElement('div');
+        el.className = 'option';
+        el.style.textAlign = 'center';
+        el.style.fontSize = '0.9rem';
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.style.justifyContent = 'center';
+        el.innerText = t.txt;
+        el.onclick = () => handleMatch(el, t);
+        grid.appendChild(el);
+    });
+}
+
+function handleMatch(el, tileData) {
+    if(el.classList.contains('correct') || el === selectedTile) return;
+
+    if(!selectedTile) {
+        selectedTile = el;
+        el.style.background = '#fff3cd';
+        el.dataset.id = tileData.id;
+    } else {
+        if(selectedTile.dataset.id === tileData.id) {
+            el.classList.add('correct');
+            selectedTile.classList.add('correct');
+            el.style.visibility = 'hidden';
+            selectedTile.style.visibility = 'hidden';
+            selectedTile = null;
+            state.score += 2;
+            checkBadges();
+            
+            // Check if board is clear
+            if(document.querySelectorAll('#match-grid .option:not(.correct)').length === 0) {
+                 setTimeout(loadMatch, 800);
+            }
+
+        } else {
+            el.style.background = '#f8d7da';
+            selectedTile.style.background = '#f8d7da';
+            let t1 = el;
+            let t2 = selectedTile;
+            setTimeout(() => {
+                t1.style.background = 'white';
+                t2.style.background = 'white';
+            }, 500);
+            selectedTile = null;
+        }
+    }
+}
+
+// --- BADGES ---
+function checkBadges() {
+    if (state.score >= 1 && !state.unlocked.includes('wolf')) unlockBadge('b-wolf');
+    if (state.streak >= 5 && !state.unlocked.includes('fire')) unlockBadge('b-fire');
+    if (state.score >= 20 && !state.unlocked.includes('brain')) unlockBadge('b-brain');
+    if (state.score >= 30 && !state.unlocked.includes('vesuvio')) unlockBadge('b-vesuvio');
+    if (state.score >= 40 && !state.unlocked.includes('vespa')) unlockBadge('b-vespa');
+    
+    if (state.score >= 50) {
+        if(!state.unlocked.includes('stella')) {
+            unlockBadge('b-stella');
+            setTimeout(() => {
+                alert("Eccezionale Lavoro! Hai conquistato la Stella!");
+            }, 500);
+        }
+    }
+}
+
+function unlockBadge(id) {
+    let cleanId = id.replace('b-', '');
+    if(state.unlocked.includes(cleanId)) return;
+    state.unlocked.push(cleanId);
+    
+    const el = document.getElementById(id);
+    if(el) {
+        el.classList.add('unlocked');
+        el.animate([
+            { transform: 'scale(1)' },
+            { transform: 'scale(1.4)' },
+            { transform: 'scale(1.05)' }
+        ], { duration: 500 });
+    }
+}
+
+// START
+initPool(mainData);
+loadCard(0);
+
+</script>
+</body>
+</html>
