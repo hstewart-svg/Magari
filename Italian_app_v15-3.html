@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Magari">
+    <meta name="theme-color" content="#2c3e50">
+    <title>Magari - Advanced Italian</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e74c3c;
+            --highlight: #3498db;
+            --success: #2ecc71;
+            --bg: #f8f9fa;
+            --card-face: #ffffff;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--primary); 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh;
+            height: -webkit-fill-available;
+            padding-top: var(--safe-top);
+            padding-bottom: var(--safe-bottom);
+        }
+        
+        /* HEADER */
+        header { 
+            background: white;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+            flex-shrink: 0;
+            min-height: 50px;
+        }
+        
+        .logo-container { display: flex; align-items: center; gap: 8px; }
+        .app-logo {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, #27ae60 33%, #ecf0f1 33%, #ecf0f1 66%, #c0392b 66%);
+            border-radius: 8px;
+            font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .header-title h1 { margin: 0; font-size: 1.1rem; font-weight: 800; }
+        .header-title div { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; color: #95a5a6; letter-spacing: 0.5px; }
+        
+        .header-right { display: flex; align-items: center; gap: 6px; }
+        .score-display {
+            background: linear-gradient(135deg, #f39c12, #e74c3c);
+            color: white; padding: 4px 10px; border-radius: 12px;
+            font-weight: 800; font-size: 0.75rem;
+        }
+        .share-btn {
+            background: #f0f2f5; border: none; color: var(--highlight);
+            width: 32px; height: 32px; border-radius: 50%;
+            font-size: 1rem; cursor: pointer; display: flex;
+            align-items: center; justify-content: center;
+        }
+        .share-btn:active { transform: scale(0.95); }
+
+        /* DECK SELECTOR */
+        .deck-selector {
+            display: flex; gap: 8px;
+            padding: 8px 12px;
+            flex-shrink: 0;
+        }
+        .deck-btn {
+            flex: 1; padding: 8px 6px; border-radius: 8px; border: none;
+            background: white; color: #95a5a6; font-weight: 700;
+            font-size: 0.7rem; cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .deck-btn.active {
+            background: var(--primary); color: white;
+        }
+
+        /* NAVIGATION */
+        nav { 
+            display: flex; 
+            justify-content: center; 
+            gap: 3px; 
+            padding: 4px 6px 10px;
+            flex-shrink: 0;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+        .nav-btn { 
+            background: white; 
+            border: none; 
+            padding: 6px 8px;
+            font-weight: 600; 
+            color: #95a5a6; 
+            cursor: pointer; 
+            font-size: 0.6rem; 
+            border-radius: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            white-space: nowrap;
+            min-width: 40px;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+        .nav-btn .nav-icon { font-size: 0.85rem; }
+        .nav-btn .nav-text { display: none; }
+        .nav-btn.active { 
+            background: var(--accent); 
+            color: white;
+        }
+        
+        @media (min-width: 400px) {
+            .nav-btn { padding: 6px 10px; font-size: 0.65rem; }
+            .nav-btn .nav-text { display: inline; }
+        }
+
+        /* MAIN AREA */
+        #app-container { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 0 10px 10px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .hidden { display: none !important; }
+
+        /* FLASHCARDS */
+        .scene { 
+            width: 100%; 
+            max-width: 500px; 
+            height: 280px;
+            perspective: 1000px; 
+            margin-bottom: 15px;
+            cursor: pointer; 
+            flex-shrink: 0;
+        }
+        
+        @media (min-height: 700px) { .scene { height: 320px; } }
+        @media (min-height: 800px) { .scene { height: 360px; } }
+        @media (min-height: 900px) { .scene { height: 400px; } }
+        
+        .card { 
+            width: 100%; height: 100%; position: relative; 
+            transition: transform 0.5s ease; 
+            transform-style: preserve-3d; 
+        }
+        .card.is-flipped { transform: rotateY(180deg); }
+        .card-face { 
+            position: absolute; width: 100%; height: 100%; 
+            backface-visibility: hidden; 
+            border-radius: 20px; 
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            padding: 24px 20px; 
+            text-align: center; 
+        }
+        .card-front { 
+            background: white; 
+            box-shadow: 0 15px 40px -10px rgba(0,0,0,0.15);
+        }
+        .card-back { 
+            background: var(--primary); color: white; 
+            transform: rotateY(180deg); 
+            box-shadow: 0 15px 40px -10px rgba(0,0,0,0.2);
+        }
+        .cat-label { 
+            font-size: 0.7rem; text-transform: uppercase; 
+            background: #f0f2f5; padding: 5px 12px; border-radius: 6px; 
+            color: #7f8c8d; margin-bottom: 16px; font-weight: 700;
+        }
+        .word-main { 
+            font-size: 2rem; font-weight: 800; 
+            line-height: 1.2; color: var(--primary);
+            word-break: break-word;
+        }
+        .word-sub { 
+            font-size: 1.5rem; margin-top: 12px; 
+            line-height: 1.3; font-weight: 600;
+            word-break: break-word;
+        }
+        .hint-text { 
+            margin-top: 16px; font-size: 0.85rem; 
+            color: #bdc3c7; font-style: italic; 
+        }
+        
+        @media (min-width: 390px) {
+            .word-main { font-size: 2.2rem; }
+            .word-sub { font-size: 1.6rem; }
+        }
+
+        .controls { display: flex; gap: 30px; margin-bottom: 12px; flex-shrink: 0; }
+        .control-btn { 
+            background: white; border: none; 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12); 
+            width: 60px; height: 60px; border-radius: 50%; 
+            font-size: 1.5rem; cursor: pointer; color: var(--primary);
+        }
+        .control-btn:active { transform: scale(0.95); background: #f8f8f8; }
+
+        /* QUIZ & OPTIONS */
+        .quiz-container { width: 100%; max-width: 500px; }
+        
+        .option { 
+            background: white; 
+            padding: 14px 12px; 
+            margin-bottom: 6px; 
+            border-radius: 12px; 
+            border: 2px solid transparent; 
+            cursor: pointer; 
+            font-size: 0.85rem; 
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            transition: all 0.15s;
+        }
+        .option.correct { background: #d4edda; border-color: #27ae60; color: #155724; }
+        .option.wrong { background: #f8d7da; border-color: #e74c3c; color: #721c24; }
+        .option.disabled { pointer-events: none; opacity: 0.7; }
+        .option.selected { background: #e8f4fc; border-color: var(--highlight); }
+        .option.selected.correct { background: #d4edda; border-color: #27ae60; }
+        .option.selected.wrong { background: #f8d7da; border-color: #e74c3c; }
+        .option:active { transform: scale(0.98); }
+        
+        .next-btn, #next-btn {
+            background: var(--primary); color: white; 
+            width: 100%; padding: 14px;
+            font-size: 0.95rem; border: none; border-radius: 12px; 
+            cursor: pointer; margin-top: 12px; font-weight: 700;
+            min-height: 48px;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* Progress bars */
+        .progress-bar { 
+            width: 100%; height: 5px; background: #e0e0e0; 
+            border-radius: 3px; overflow: hidden; margin-bottom: 12px;
+        }
+        .progress-fill { 
+            height: 100%; 
+            background: linear-gradient(90deg, #2ecc71, #27ae60); 
+            transition: width 0.3s;
+        }
+
+        .quiz-header {
+            display: flex; justify-content: space-between; 
+            margin-bottom: 4px; font-size: 0.65rem; 
+            font-weight: 700; color: #95a5a6;
+        }
+        
+        .quiz-question {
+            font-size: 1rem; text-align: center; 
+            margin-bottom: 12px; font-weight: 700; color: var(--primary);
+        }
+        .quiz-question-word {
+            color: var(--accent); font-size: 1.4rem; 
+            display: block; margin-top: 6px; line-height: 1.2;
+        }
+        
+        .quiz-msg {
+            height: 22px; text-align: center; 
+            font-weight: 700; margin-top: 6px; font-size: 0.9rem;
+        }
+
+        /* TIMER & SPEED */
+        .timer-bar {
+            width: 100%; height: 5px; background: #e0e0e0; 
+            border-radius: 3px; margin-bottom: 10px; overflow: hidden;
+        }
+        .timer-fill {
+            height: 100%; background: linear-gradient(90deg, #e74c3c, #f39c12);
+            transition: width 0.1s linear;
+        }
+
+        .speed-stats {
+            display: flex; justify-content: space-around; 
+            margin-bottom: 12px; background: white; 
+            padding: 10px; border-radius: 10px;
+        }
+        .speed-stat { text-align: center; }
+        .speed-stat-value { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+        .speed-stat-label { font-size: 0.6rem; color: #95a5a6; text-transform: uppercase; }
+
+        /* SPELLING */
+        .spelling-input {
+            width: 100%; padding: 14px; font-size: 1.1rem; 
+            border: 2px solid #e0e0e0; border-radius: 12px; 
+            text-align: center; margin: 10px 0; font-weight: 600;
+        }
+        .spelling-input:focus { border-color: var(--highlight); outline: none; }
+        .spelling-input.correct { border-color: #27ae60; background: #d4edda; }
+        .spelling-input.wrong { border-color: #e74c3c; background: #f8d7da; }
+
+        /* SURVIVAL */
+        .lives-display { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
+        .life { font-size: 1.3rem; transition: 0.3s; }
+        .life.lost { opacity: 0.2; transform: scale(0.7); }
+        
+        .survival-score-display {
+            text-align: center; margin-bottom: 8px; font-size: 0.75rem; color: #95a5a6;
+        }
+        .survival-score-display span { font-weight: 900; color: var(--primary); }
+
+        /* SYNONYMS MODE */
+        .synonym-direction {
+            display: flex; gap: 8px; margin-bottom: 12px; justify-content: center;
+        }
+        .direction-btn {
+            padding: 8px 16px; border-radius: 20px; border: 2px solid #e0e0e0;
+            background: white; font-size: 0.75rem; font-weight: 700;
+            color: #95a5a6; cursor: pointer; transition: 0.2s;
+        }
+        .direction-btn.active {
+            background: var(--highlight); border-color: var(--highlight); color: white;
+        }
+        .synonym-hint {
+            text-align: center; font-size: 0.7rem; color: #95a5a6; margin-bottom: 8px;
+        }
+        .synonym-count {
+            display: inline-block; background: var(--highlight); color: white;
+            padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700;
+            margin-left: 5px;
+        }
+
+        /* BADGES */
+        .badge-case { 
+            background: white; padding: 12px; border-radius: 14px; 
+            width: 100%; max-width: 500px; margin-top: 8px; margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .badge-case-header {
+            margin: 0 0 4px 0; font-size: 0.85rem; text-align: center; 
+            color: var(--primary); font-weight: 900;
+        }
+        .badge-case-progress {
+            margin: 0 0 10px 0; font-size: 0.6rem; text-align: center; color: #95a5a6;
+        }
+        .badge-section-title {
+            font-size: 0.6rem; text-transform: uppercase; color: #95a5a6;
+            letter-spacing: 0.5px; margin: 10px 0 6px 0; font-weight: 700;
+            border-bottom: 1px solid #eee; padding-bottom: 4px;
+        }
+        .badge-grid { 
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; 
+        }
+        .badge-grid.streaks { grid-template-columns: repeat(3, 1fr); }
+        
+        .badge { 
+            text-align: center; opacity: 0.2; filter: grayscale(100%); 
+            background: #f8f9fa; padding: 8px 4px; border-radius: 8px;
+        }
+        .badge.unlocked { 
+            opacity: 1; filter: grayscale(0%); 
+            background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+        }
+        .badge-icon { font-size: 1.3rem; margin-bottom: 2px; display: block; }
+        .badge-title { font-size: 0.45rem; font-weight: 700; text-transform: uppercase; color: var(--primary); }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: calc(60px + var(--safe-bottom)); 
+            left: 50%; transform: translateX(-50%);
+            background: var(--primary); color: white; 
+            padding: 10px 18px; border-radius: 20px; 
+            font-weight: 700; font-size: 0.85rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 1000;
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards;
+        }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(20px); } }
+        @keyframes toastOut { to { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+
+        .reset-btn {
+            background: none; border: 1px solid #e0e0e0; color: #95a5a6;
+            padding: 5px 10px; border-radius: 6px; font-size: 0.65rem; cursor: pointer; margin-top: 8px;
+        }
+
+        /* Results */
+        .results-screen {
+            text-align: center; padding: 25px 20px;
+            background: white; border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 320px; width: 100%;
+        }
+        .results-icon { font-size: 3rem; margin-bottom: 10px; }
+        .results-title { font-size: 1.2rem; font-weight: 900; color: var(--primary); margin-bottom: 8px; }
+        .results-score { font-size: 2.5rem; font-weight: 900; color: var(--accent); margin-bottom: 4px; }
+        .results-label { font-size: 0.85rem; color: #95a5a6; margin-bottom: 16px; }
+        .results-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 12px 24px; border-radius: 10px; font-size: 0.9rem;
+            font-weight: 700; cursor: pointer; margin: 4px; min-height: 44px;
+        }
+        .results-btn.secondary { background: #95a5a6; }
+
+        @media (max-height: 500px) and (orientation: landscape) {
+            header { padding: 6px 12px; min-height: 40px; }
+            .deck-selector { padding: 4px 12px; }
+            nav { padding: 2px 8px 6px; }
+            .scene { height: 160px; }
+            .badge-case { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container">
+        <div class="app-logo">🇮🇹</div>
+        <div class="header-title">
+            <h1>MAGARI</h1>
+            <div>Advanced Italian</div>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="score-display" id="header-score">0 pts</div>
+        <button class="share-btn" onclick="shareApp()">📤</button>
+    </div>
+</header>
+
+<div class="deck-selector">
+    <button class="deck-btn active" id="deck-vocab" onclick="setDeck('vocab')">Vocabolario</button>
+    <button class="deck-btn" id="deck-cong" onclick="setDeck('cong')">Congiuntivo</button>
+    <button class="deck-btn" id="deck-cond" onclick="setDeck('cond')">Cond. Passato</button>
+</div>
+
+<nav>
+    <button class="nav-btn active" id="nav-flashcards" onclick="setMode('flashcards')"><span class="nav-icon">🃏</span><span class="nav-text">Cards</span></button>
+    <button class="nav-btn" id="nav-quiz" onclick="setMode('quiz')"><span class="nav-icon">🎯</span><span class="nav-text">Quiz</span></button>
+    <button class="nav-btn" id="nav-synonyms" onclick="setMode('synonyms')"><span class="nav-icon">🔄</span><span class="nav-text">Synonyms</span></button>
+    <button class="nav-btn" id="nav-match" onclick="setMode('match')"><span class="nav-icon">🎮</span><span class="nav-text">Match</span></button>
+    <button class="nav-btn" id="nav-speed" onclick="setMode('speed')"><span class="nav-icon">⏱️</span><span class="nav-text">Speed</span></button>
+    <button class="nav-btn" id="nav-spelling" onclick="setMode('spelling')"><span class="nav-icon">✍️</span><span class="nav-text">Spell</span></button>
+    <button class="nav-btn" id="nav-survival" onclick="setMode('survival')"><span class="nav-icon">💀</span><span class="nav-text">Survive</span></button>
+</nav>
+
+<div id="app-container">
+    <!-- FLASHCARDS VIEW -->
+    <div id="view-flashcards" class="mode-view">
+        <div class="scene" onclick="flipCard()">
+            <div class="card">
+                <div class="card-face card-front">
+                    <div class="cat-label" id="fc-cat">Category</div>
+                    <div class="word-main" id="fc-ita">Italiano</div>
+                    <div class="hint-text">(Tap to flip)</div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="word-sub" id="fc-eng">English</div>
+                    <div class="hint-text" id="fc-note"></div>
+                </div>
+            </div>
+        </div>
+        <div class="controls">
+            <button class="control-btn" onclick="nextCard(-1)">←</button>
+            <button class="control-btn" onclick="nextCard(1)">→</button>
+        </div>
+    </div>
+
+    <!-- QUIZ VIEW -->
+    <div id="view-quiz" class="mode-view hidden">
+        <div class="quiz-container">
+            <div class="quiz-header">
+                <span>PROGRESS</span>
+                <span id="quiz-count">0/0</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="quiz-progress"></div></div>
+            <div class="quiz-question">
+                Cosa significa:
+                <span class="quiz-question-word" id="quiz-q">?</span>
+            </div>
+            <div id="quiz-options"></div>
+            <div class="quiz-msg" id="quiz-msg"></div>
+            <button id="next-btn" class="hidden" onclick="nextQuizQuestion()">Next →</button>
+        </div>
+    </div>
+
+    <!-- SYNONYMS VIEW -->
+    <div id="view-synonyms" class="mode-view hidden">
+        <div class="quiz-container">
+            <div class="synonym-direction">
+                <button class="direction-btn active" id="dir-en-it" onclick="setSynonymDirection('en-it')">EN → IT</button>
+                <button class="direction-btn" id="dir-it-en" onclick="setSynonymDirection('it-en')">IT → EN</button>
+            </div>
+            <div class="quiz-header">
+                <span>SYNONYMS</span>
+                <span id="syn-count">0/0</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="syn-progress"></div></div>
+            <div class="quiz-question">
+                <span id="syn-prompt">Select all Italian words for:</span>
+                <span class="quiz-question-word" id="syn-q">?</span>
+                <span class="synonym-hint">Tap all correct answers <span class="synonym-count" id="syn-num">0</span></span>
+            </div>
+            <div id="syn-options"></div>
+            <div class="quiz-msg" id="syn-msg"></div>
+            <button id="syn-check-btn" class="next-btn" onclick="checkSynonyms()">Check ✓</button>
+            <button id="syn-next-btn" class="next-btn hidden" onclick="nextSynonymQuestion()">Next →</button>
+        </div>
+    </div>
+
+    <!-- MATCH VIEW -->
+    <div id="view-match" class="mode-view hidden">
+        <div style="text-align:center; margin-bottom:10px; font-weight:700; color:#95a5a6; font-size:0.75rem;">Tap pairs to match</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; width:100%; max-width:400px;" id="match-grid"></div>
+    </div>
+
+    <!-- SPEED VIEW -->
+    <div id="view-speed" class="mode-view hidden">
+        <div class="quiz-container">
+            <div class="timer-bar"><div class="timer-fill" id="speed-timer"></div></div>
+            <div class="speed-stats">
+                <div class="speed-stat">
+                    <div class="speed-stat-value" id="speed-correct">0</div>
+                    <div class="speed-stat-label">Correct</div>
+                </div>
+                <div class="speed-stat">
+                    <div class="speed-stat-value" id="speed-time">60</div>
+                    <div class="speed-stat-label">Seconds</div>
+                </div>
+            </div>
+            <div class="quiz-question">
+                <span class="quiz-question-word" id="speed-q">Ready?</span>
+            </div>
+            <div id="speed-options"></div>
+            <button id="speed-start-btn" class="next-btn" onclick="startSpeedRound()">Start ⏱️</button>
+        </div>
+    </div>
+
+    <!-- SPELLING VIEW -->
+    <div id="view-spelling" class="mode-view hidden">
+        <div class="quiz-container">
+            <div class="quiz-header">
+                <span>SPELLING</span>
+                <span id="spell-count">0/0</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="spell-progress"></div></div>
+            <div style="margin-bottom:8px;">
+                <div style="font-size:0.75rem; color:#95a5a6; margin-bottom:6px; text-align:center;">Type the Italian for:</div>
+                <div style="font-size:1.3rem; font-weight:800; color:var(--primary); text-align:center;" id="spell-english"></div>
+                <div style="font-size:0.75rem; color:#95a5a6; margin-top:4px; text-align:center;" id="spell-hint"></div>
+            </div>
+            <input type="text" class="spelling-input" id="spell-input" placeholder="Type in Italian..." autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+            <div class="quiz-msg" id="spell-msg"></div>
+            <button id="spell-check-btn" class="next-btn" onclick="checkSpelling()">Check ✓</button>
+            <button id="spell-next-btn" class="next-btn hidden" onclick="nextSpellingQuestion()">Next →</button>
+        </div>
+    </div>
+
+    <!-- SURVIVAL VIEW -->
+    <div id="view-survival" class="mode-view hidden">
+        <div class="quiz-container">
+            <div class="lives-display" id="lives-display">
+                <span class="life">❤️</span>
+                <span class="life">❤️</span>
+                <span class="life">❤️</span>
+            </div>
+            <div class="survival-score-display">Score: <span id="survival-score">0</span></div>
+            <div class="quiz-question">
+                <span class="quiz-question-word" id="survival-q">?</span>
+            </div>
+            <div id="survival-options"></div>
+            <div class="quiz-msg" id="survival-msg"></div>
+            <button id="survival-next-btn" class="next-btn hidden" onclick="nextSurvivalQuestion()">Next →</button>
+            <button id="survival-start-btn" class="next-btn" onclick="startSurvival()">Start 💀</button>
+        </div>
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div id="view-results" class="mode-view hidden">
+        <div class="results-screen">
+            <div class="results-icon" id="results-icon">🏆</div>
+            <div class="results-title" id="results-title">Great Job!</div>
+            <div class="results-score" id="results-score">0</div>
+            <div class="results-label" id="results-label">points</div>
+            <button class="results-btn" id="results-retry-btn">Try Again</button>
+            <button class="results-btn secondary" onclick="setMode('flashcards')">Back</button>
+        </div>
+    </div>
+
+    <!-- BADGES -->
+    <div class="badge-case" id="badge-case">
+        <h3 class="badge-case-header">🏆 I Tuoi Trofei</h3>
+        <p class="badge-case-progress" id="badge-progress">0 / 16 sbloccati</p>
+        
+        <div class="badge-section-title">📊 Punti</div>
+        <div class="badge-grid">
+            <div class="badge" id="b-wolf"><span class="badge-icon">🐺</span><div class="badge-title">Lupo (1)</div></div>
+            <div class="badge" id="b-pizza"><span class="badge-icon">🍕</span><div class="badge-title">Pizza (25)</div></div>
+            <div class="badge" id="b-caffe"><span class="badge-icon">☕</span><div class="badge-title">Caffè (50)</div></div>
+            <div class="badge" id="b-michel"><span class="badge-icon">🎨</span><div class="badge-title">Arte (75)</div></div>
+            <div class="badge" id="b-vespa"><span class="badge-icon">🛵</span><div class="badge-title">Vespa (100)</div></div>
+            <div class="badge" id="b-gondola"><span class="badge-icon">🚣</span><div class="badge-title">Gondola (125)</div></div>
+            <div class="badge" id="b-colosseo"><span class="badge-icon">🏛️</span><div class="badge-title">Roma (150)</div></div>
+            <div class="badge" id="b-maestro"><span class="badge-icon">🧠</span><div class="badge-title">Maestro (175)</div></div>
+            <div class="badge" id="b-commedia"><span class="badge-icon">🎭</span><div class="badge-title">Teatro (200)</div></div>
+            <div class="badge" id="b-sommelier"><span class="badge-icon">🍷</span><div class="badge-title">Vino (225)</div></div>
+            <div class="badge" id="b-stella"><span class="badge-icon">🌟</span><div class="badge-title">Stella (250)</div></div>
+            <div class="badge" id="b-campione"><span class="badge-icon">🏆</span><div class="badge-title">Champ (275)</div></div>
+            <div class="badge" id="b-crown"><span class="badge-icon">👑</span><div class="badge-title">Re (311)</div></div>
+        </div>
+
+        <div class="badge-section-title">🔥 Streak</div>
+        <div class="badge-grid streaks">
+            <div class="badge" id="b-corno"><span class="badge-icon">🌶️</span><div class="badge-title">Corno (5)</div></div>
+            <div class="badge" id="b-fire"><span class="badge-icon">🔥</span><div class="badge-title">Fire (10)</div></div>
+            <div class="badge" id="b-vesuvio"><span class="badge-icon">🌋</span><div class="badge-title">Vesuvio (15)</div></div>
+        </div>
+
+        <div style="text-align:center;">
+            <button class="reset-btn" onclick="confirmReset()">Reset Progress</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const motivations = ["Bravo!", "Ottimo!", "Perfetto!", "Grande!", "Fantastico!", "Eccellente!", "Bene!", "Sì!"];
+
+// --- VOCABULARY DATA ---
+const mainData = [
+    {i:"addirittura", e:"actually, even", c:"Connecting"},
+    {i:"alla fine", e:"at the end", c:"Connecting"},
+    {i:"almeno", e:"at least", c:"Connecting"},
+    {i:"altrettanto", e:"the same to you", c:"Connecting"},
+    {i:"altrimenti", e:"otherwise", c:"Connecting"},
+    {i:"anzi", e:"on the contrary", c:"Connecting"},
+    {i:"a proposito", e:"by the way", c:"Connecting"},
+    {i:"benché", e:"although, even though", c:"Connecting"},
+    {i:"sebbene", e:"although, even though", c:"Connecting"},
+    {i:"pur", e:"although, even (formal)", c:"Connecting"},
+    {i:"boh", e:"who knows?", c:"Connecting"},
+    {i:"che ne so", e:"how should I know?", c:"Connecting"},
+    {i:"cioè", e:"that is", c:"Connecting"},
+    {i:"come mai?", e:"how come?", c:"Connecting"},
+    {i:"comunque", e:"however, anyway", c:"Connecting"},
+    {i:"dappertutto", e:"everywhere", c:"Connecting"},
+    {i:"ovunque", e:"everywhere, wherever", c:"Connecting"},
+    {i:"dunque", e:"therefore, so (formal)", c:"Connecting"},
+    {i:"di nuovo", e:"again", c:"Connecting"},
+    {i:"di solito", e:"usually", c:"Connecting"},
+    {i:"entrambi", e:"both", c:"Connecting"},
+    {i:"eppure", e:"and yet", c:"Connecting"},
+    {i:"fino", e:"until", c:"Connecting"},
+    {i:"finora", e:"until now", c:"Connecting"},
+    {i:"infatti", e:"in fact", c:"Connecting"},
+    {i:"insomma", e:"in short", c:"Connecting"},
+    {i:"macché", e:"no way!", c:"Connecting"},
+    {i:"magari", e:"maybe, if only!", c:"Connecting"},
+    {i:"malgrado", e:"despite, in spite of", c:"Connecting"},
+    {i:"mica", e:"not at all", c:"Connecting"},
+    {i:"neanche", e:"not even", c:"Connecting"},
+    {i:"nonostante", e:"despite, notwithstanding", c:"Connecting"},
+    {i:"oltretutto", e:"moreover", c:"Connecting"},
+    {i:"ciononostante", e:"nevertheless, notwithstanding", c:"Connecting"},
+    {i:"tuttavia", e:"however, nevertheless", c:"Connecting"},
+    {i:"nondimeno", e:"nevertheless, yet", c:"Connecting"},
+    {i:"a dispetto di", e:"in spite of", c:"Connecting"},
+    {i:"indipendentemente da", e:"regardless of", c:"Connecting"},
+    {i:"a prescindere da", e:"regardless of", c:"Connecting"},
+    {i:"oppure", e:"or else", c:"Connecting"},
+    {i:"ormai", e:"by now", c:"Connecting"},
+    {i:"perciò", e:"therefore, for this reason", c:"Connecting"},
+    {i:"però", e:"however", c:"Connecting"},
+    {i:"piuttosto", e:"rather", c:"Connecting"},
+    {i:"purché", e:"provided that", c:"Connecting"},
+    {i:"pure", e:"also, even", c:"Connecting"},
+    {i:"quasi", e:"almost", c:"Connecting"},
+    {i:"quindi", e:"therefore, so", c:"Connecting"},
+    {i:"senza dubbio", e:"without a doubt", c:"Connecting"},
+    {i:"pertanto", e:"therefore (formal)", c:"Connecting"},
+    {i:"di conseguenza", e:"consequently", c:"Connecting"},
+    {i:"allora", e:"then, so", c:"Connecting"},
+    {i:"per questo motivo", e:"for this reason", c:"Connecting"},
+    {i:"siccome", e:"since, because (starts sentence)", c:"Connecting"},
+    {i:"dato che", e:"given that, since", c:"Connecting"},
+    {i:"visto che", e:"seeing that, since", c:"Connecting"},
+    {i:"poiché", e:"since, as (formal)", c:"Connecting"},
+    {i:"dal momento che", e:"since, from the moment that", c:"Connecting"},
+    {i:"perché", e:"because, why", c:"Connecting", n:"Cannot start sentence as 'because'"},
+    {i:"a causa di", e:"because of, due to", c:"Connecting", n:"Often implies negative cause"},
+    {i:"per via di", e:"due to, on account of", c:"Connecting"},
+    {i:"soprattutto", e:"above all", c:"Connecting"},
+    {i:"tipo", e:"like (filler)", c:"Connecting"},
+    {i:"tutto ciò", e:"all of that", c:"Connecting"},
+    {i:"abboccare", e:"to fall for it", c:"Verbs"},
+    {i:"aggiungere", e:"to add", c:"Verbs"},
+    {i:"arrangiarsi", e:"to make do", c:"Verbs"},
+    {i:"raggiungere", e:"to reach", c:"Verbs"},
+    {i:"aggiornare", e:"to update", c:"Verbs"},
+    {i:"caricare", e:"to load/charge", c:"Verbs"},
+    {i:"scaricare", e:"to download", c:"Verbs"},
+    {i:"contare su", e:"to count on", c:"Verbs"},
+    {i:"mordere", e:"to bite", c:"Verbs"},
+    {i:"sfidare", e:"to challenge", c:"Verbs"},
+    {i:"rovesciare", e:"to spill", c:"Verbs"},
+    {i:"annusare", e:"to sniff", c:"Verbs"},
+    {i:"decollare", e:"to take off", c:"Verbs"},
+    {i:"atterrare", e:"to land", c:"Verbs"},
+    {i:"cogliere", e:"to gather", c:"Verbs"},
+    {i:"raccogliere", e:"to collect", c:"Verbs"},
+    {i:"costare", e:"to cost", c:"Verbs"},
+    {i:"fregarsene", e:"to not care", c:"Verbs"},
+    {i:"mancare", e:"to miss", c:"Verbs"},
+    {i:"prestare", e:"to lend", c:"Verbs"},
+    {i:"restituire", e:"to return", c:"Verbs"},
+    {i:"ridere", e:"to laugh", c:"Verbs"},
+    {i:"ricordare", e:"to remember", c:"Verbs"},
+    {i:"ringraziare", e:"to thank", c:"Verbs"},
+    {i:"rifiutare", e:"to reject", c:"Verbs"},
+    {i:"riuscire", e:"to succeed", c:"Verbs"},
+    {i:"negare", e:"to deny", c:"Verbs"},
+    {i:"sdraiarsi", e:"to lie down", c:"Verbs"},
+    {i:"trasferirsi", e:"to move house", c:"Verbs"},
+    {i:"volare", e:"to fly", c:"Verbs"},
+    {i:"risparmiare", e:"to save money", c:"Verbs"},
+    {i:"voltare", e:"to turn", c:"Verbs"},
+    {i:"sussurrare", e:"to whisper", c:"Verbs"},
+    {i:"puzzare", e:"to stink", c:"Verbs"},
+    {i:"andare d'accordo", e:"to get along", c:"Expressions"},
+    {i:"me ne vado", e:"I'm leaving", c:"Expressions"},
+    {i:"avere un chiodo fisso", e:"to be obsessed", c:"Expressions"},
+    {i:"avere la luna storta", e:"bad mood", c:"Expressions"},
+    {i:"Dai!", e:"Come on!", c:"Expressions"},
+    {i:"dare fastidio", e:"to bother", c:"Expressions"},
+    {i:"dare sui nervi", e:"get on nerves", c:"Expressions"},
+    {i:"dare un'occhiata", e:"take a look", c:"Expressions"},
+    {i:"dare buca", e:"stand someone up", c:"Expressions"},
+    {i:"dare per scontato", e:"take for granted", c:"Expressions"},
+    {i:"stufarsi di", e:"get fed up", c:"Expressions"},
+    {i:"non ne posso più", e:"I can't take it", c:"Expressions"},
+    {i:"è un peccato", e:"it's a shame", c:"Expressions"},
+    {i:"sono d'accordo", e:"I agree", c:"Expressions"},
+    {i:"fare la coda", e:"wait in line", c:"Expressions"},
+    {i:"fammi sapere", e:"let me know", c:"Expressions"},
+    {i:"fare due passi", e:"take a walk", c:"Expressions"},
+    {i:"mettercela tutta", e:"give it your all", c:"Expressions"},
+    {i:"non te la prendere", e:"don't get upset", c:"Expressions"},
+    {i:"ci sta", e:"I'm down", c:"Everyday"},
+    {i:"col cavolo!", e:"no way!", c:"Everyday"},
+    {i:"il solito", e:"the usual", c:"Everyday"},
+    {i:"basta così", e:"that's it", c:"Everyday"},
+    {i:"meno male", e:"thank goodness", c:"Everyday"},
+    {i:"che fatica", e:"how tiring", c:"Everyday"},
+    {i:"ti sta bene!", e:"serves you right", c:"Everyday"},
+    {i:"uffa!", e:"ugh!", c:"Everyday"},
+    {i:"vale la pena", e:"worth it", c:"Everyday"},
+    {i:"pian piano", e:"little by little", c:"Everyday"},
+    {i:"ci penso io", e:"I'll handle it", c:"Everyday"},
+    {i:"mi raccomando", e:"please/listen", c:"Everyday"},
+    {i:"pazzesco", e:"incredible", c:"Everyday"},
+    {i:"a fagiolo", e:"just right", c:"Idiom"},
+    {i:"chi dorme non piglia pesci", e:"you snooze you lose", c:"Idiom"},
+    {i:"di male in peggio", e:"from bad to worse", c:"Idiom"},
+    {i:"ogni lasciata è persa", e:"seize the day", c:"Idiom"},
+    {i:"pioggia a catinelle", e:"pouring rain", c:"Idiom"},
+    {i:"In bocca al lupo!", e:"Good luck!", c:"Idiom"},
+    {i:"sono al settimo cielo", e:"over the moon", c:"Idiom"},
+    {i:"che fico!", e:"how cool!", c:"Slang"},
+    {i:"che macello!", e:"what a mess!", c:"Slang"},
+    {i:"che sbatti!", e:"what a hassle!", c:"Slang"},
+    {i:"che sfiga!", e:"bummer!", c:"Slang"},
+    {i:"un botto", e:"a lot", c:"Slang"},
+    {i:"grembiule", e:"apron", c:"Kitchen"},
+    {i:"bollitore", e:"kettle", c:"Kitchen"},
+    {i:"mestolo", e:"ladle", c:"Kitchen"},
+    {i:"frusta", e:"whisk", c:"Kitchen"},
+    {i:"ciotola", e:"bowl", c:"Kitchen"},
+    {i:"tacchino", e:"turkey", c:"Kitchen"},
+    {i:"portata", e:"course/dish", c:"Kitchen"},
+    {i:"stuzzichino", e:"appetizer", c:"Kitchen"},
+    {i:"falegname", e:"carpenter", c:"Work"},
+    {i:"pendolare", e:"commuter", c:"Work"},
+    {i:"stipendio", e:"salary", c:"Work"},
+    {i:"assunzione", e:"hiring", c:"Work"},
+    {i:"fatturato", e:"revenue", c:"Work"},
+    {i:"profitto", e:"profit", c:"Work"},
+    {i:"bilancio", e:"budget", c:"Work"},
+    {i:"il cuscino", e:"pillow", c:"Home"},
+    {i:"il rubinetto", e:"faucet", c:"Home"},
+    {i:"spazzatura", e:"trash", c:"Home"},
+    {i:"di sopra", e:"upstairs", c:"Home"},
+    {i:"di sotto", e:"downstairs", c:"Home"},
+    {i:"colibrì", e:"hummingbird", c:"Nature"},
+    {i:"zanzare", e:"mosquitos", c:"Nature"},
+    {i:"lo scoiattolo", e:"squirrel", c:"Nature"},
+    {i:"amico del cuore", e:"best friend", c:"People"},
+    {i:"mammone", e:"mama's boy", c:"People"},
+    {i:"furbo", e:"clever/cunning", c:"People"},
+    {i:"viziato", e:"spoiled", c:"People"},
+    {i:"esaurito", e:"exhausted", c:"People"},
+    {i:"affascinante", e:"fascinating", c:"People"},
+    {i:"meraviglioso", e:"marvelous", c:"People"},
+    {i:"il gomito", e:"elbow", c:"Body"},
+    {i:"la pancia", e:"belly", c:"Body"},
+    {i:"la caviglia", e:"ankle", c:"Body"},
+    {i:"bugia", e:"lie", c:"Misc"},
+    {i:"guinzaglio", e:"leash", c:"Misc"},
+    {i:"l'arcobaleno", e:"rainbow", c:"Misc"},
+    {i:"fra poco", e:"soon", c:"Time"},
+    {i:"mi manchi", e:"I miss you", c:"Phrase"},
+    {i:"colpo di fulmine", e:"love at first sight", c:"Phrase"}
+];
+
+// --- CONGIUNTIVO DATA ---
+const congiuntivoData = [
+    {i:"Benché", e:"Although (+subj)", c:"Conjunctions"},
+    {i:"Sebbene", e:"Although (+subj)", c:"Conjunctions"},
+    {i:"Purché", e:"Provided that", c:"Conjunctions"},
+    {i:"A patto che", e:"On condition that", c:"Conjunctions"},
+    {i:"Prima che", e:"Before", c:"Conjunctions"},
+    {i:"Senza che", e:"Without", c:"Conjunctions"},
+    {i:"A meno che", e:"Unless", c:"Conjunctions"},
+    {i:"Affinché", e:"So that", c:"Conjunctions"},
+    {i:"Nel caso che", e:"In case", c:"Conjunctions"},
+    {i:"Come se", e:"As if", c:"Conjunctions"},
+    {i:"Dovunque", e:"Wherever/Everywhere", c:"Conjunctions"},
+    {i:"Chiunque", e:"Whoever", c:"Conjunctions"},
+    {i:"Qualunque cosa", e:"Whatever", c:"Conjunctions"},
+    {i:"È importante che", e:"It's important that", c:"Impersonal"},
+    {i:"È necessario che", e:"It's necessary that", c:"Impersonal"},
+    {i:"Bisogna che", e:"It's necessary that", c:"Impersonal"},
+    {i:"È possibile che", e:"It's possible that", c:"Impersonal"},
+    {i:"È probabile che", e:"It's probable that", c:"Impersonal"},
+    {i:"È meglio che", e:"It's better that", c:"Impersonal"},
+    {i:"È strano che", e:"It's strange that", c:"Impersonal"},
+    {i:"Pare che", e:"It seems that", c:"Impersonal"},
+    {i:"Sembra che", e:"It seems that", c:"Impersonal"},
+    {i:"Può darsi che", e:"It may be that", c:"Impersonal"},
+    {i:"Peccato che", e:"It's a pity that", c:"Impersonal"},
+    {i:"Spero che", e:"I hope that", c:"Emotion"},
+    {i:"Temo che", e:"I fear that", c:"Emotion"},
+    {i:"Ho paura che", e:"I'm afraid that", c:"Emotion"},
+    {i:"Sono felice che", e:"I'm happy that", c:"Emotion"},
+    {i:"Mi dispiace che", e:"I'm sorry that", c:"Emotion"},
+    {i:"Mi sorprende che", e:"It surprises me", c:"Emotion"},
+    {i:"Penso che", e:"I think that", c:"Opinion"},
+    {i:"Credo che", e:"I believe that", c:"Opinion"},
+    {i:"Dubito che", e:"I doubt that", c:"Opinion"},
+    {i:"Suppongo che", e:"I suppose that", c:"Opinion"},
+    {i:"Immagino che", e:"I imagine that", c:"Opinion"},
+    {i:"Voglio che", e:"I want (someone) to", c:"Will"},
+    {i:"Desidero che", e:"I wish that", c:"Will"},
+    {i:"Preferisco che", e:"I prefer that", c:"Will"},
+    {i:"sia", e:"(that) be (essere)", c:"Forms"},
+    {i:"abbia", e:"(that) have (avere)", c:"Forms"},
+    {i:"faccia", e:"(that) do (fare)", c:"Forms"},
+    {i:"vada", e:"(that) go (andare)", c:"Forms"},
+    {i:"stia", e:"(that) stay (stare)", c:"Forms"},
+    {i:"sappia", e:"(that) know (sapere)", c:"Forms"},
+    {i:"possa", e:"(that) can (potere)", c:"Forms"},
+    {i:"voglia", e:"(that) want (volere)", c:"Forms"},
+    {i:"debba", e:"(that) must (dovere)", c:"Forms"},
+    {i:"venga", e:"(that) come (venire)", c:"Forms"},
+    {i:"Se fossi", e:"If I were", c:"If Clauses"},
+    {i:"Se avessi", e:"If I had", c:"If Clauses"},
+    {i:"Se potessi", e:"If I could", c:"If Clauses"},
+    {i:"Magari fossi!", e:"If only I were!", c:"If Clauses"},
+    {i:"Spero che tu stia bene", e:"I hope you're well", c:"Examples"},
+    {i:"Penso che sia vero", e:"I think it's true", c:"Examples"},
+    {i:"Voglio che tu venga", e:"I want you to come", c:"Examples"},
+    {i:"Benché piova, esco", e:"Although it rains, I go out", c:"Examples"}
+];
+
+// --- CONDIZIONALE PASSATO (Past Conditional) DATA ---
+const condizionaleData = [
+    // Auxiliary verb forms - AVERE
+    {i:"avrei", e:"I would have (avere)", c:"Auxiliaries", n:"io"},
+    {i:"avresti", e:"you would have (avere)", c:"Auxiliaries", n:"tu"},
+    {i:"avrebbe", e:"he/she would have (avere)", c:"Auxiliaries", n:"lui/lei"},
+    {i:"avremmo", e:"we would have (avere)", c:"Auxiliaries", n:"noi"},
+    {i:"avreste", e:"you (pl) would have (avere)", c:"Auxiliaries", n:"voi"},
+    {i:"avrebbero", e:"they would have (avere)", c:"Auxiliaries", n:"loro"},
+    
+    // Auxiliary verb forms - ESSERE
+    {i:"sarei", e:"I would have been (essere)", c:"Auxiliaries", n:"io"},
+    {i:"saresti", e:"you would have been (essere)", c:"Auxiliaries", n:"tu"},
+    {i:"sarebbe", e:"he/she would have been (essere)", c:"Auxiliaries", n:"lui/lei"},
+    {i:"saremmo", e:"we would have been (essere)", c:"Auxiliaries", n:"noi"},
+    {i:"sareste", e:"you (pl) would have been (essere)", c:"Auxiliaries", n:"voi"},
+    {i:"sarebbero", e:"they would have been (essere)", c:"Auxiliaries", n:"loro"},
+    
+    // Common -ARE verbs (use avere)
+    {i:"avrei aspettato", e:"I would have waited", c:"-ARE Verbs"},
+    {i:"avrei parlato", e:"I would have spoken", c:"-ARE Verbs"},
+    {i:"avrei mangiato", e:"I would have eaten", c:"-ARE Verbs"},
+    {i:"avrei comprato", e:"I would have bought", c:"-ARE Verbs"},
+    
+    // Common -ERE verbs (use avere)
+    {i:"avrei venduto", e:"I would have sold", c:"-ERE Verbs"},
+    {i:"avrei creduto", e:"I would have believed", c:"-ERE Verbs"},
+    {i:"avrei potuto", e:"I would have been able to", c:"-ERE Verbs"},
+    {i:"avrei dovuto", e:"I should have / would have had to", c:"-ERE Verbs"},
+    {i:"avrei voluto", e:"I would have wanted", c:"-ERE Verbs"},
+    
+    // Common -IRE verbs (use essere for motion/state)
+    {i:"sarei partito/a", e:"I would have left", c:"-IRE Verbs", n:"uses essere"},
+    {i:"sarei uscito/a", e:"I would have gone out", c:"-IRE Verbs", n:"uses essere"},
+    {i:"avrei finito", e:"I would have finished", c:"-IRE Verbs"},
+    {i:"avrei capito", e:"I would have understood", c:"-IRE Verbs"},
+    
+    // Verbs of motion (use essere)
+    {i:"sarei andato/a", e:"I would have gone", c:"Motion Verbs", n:"uses essere"},
+    {i:"sarei venuto/a", e:"I would have come", c:"Motion Verbs", n:"uses essere"},
+    {i:"sarei arrivato/a", e:"I would have arrived", c:"Motion Verbs", n:"uses essere"},
+    {i:"sarei tornato/a", e:"I would have returned", c:"Motion Verbs", n:"uses essere"},
+    {i:"sarei rimasto/a", e:"I would have stayed", c:"Motion Verbs", n:"uses essere"},
+    
+    // Type 3 Hypotheticals (If clauses - impossible past)
+    {i:"Se avessi saputo, sarei venuto", e:"If I had known, I would have come", c:"Type 3 Hypotheticals", n:"impossible past"},
+    {i:"Se avessimo comprato i biglietti, saremmo andati", e:"If we had bought tickets, we would have gone", c:"Type 3 Hypotheticals"},
+    {i:"Se fossimo andati a Roma, avremmo visto il Colosseo", e:"If we had gone to Rome, we would have seen the Colosseum", c:"Type 3 Hypotheticals"},
+    {i:"Se avessi studiato, avrei superato l'esame", e:"If I had studied, I would have passed the exam", c:"Type 3 Hypotheticals"},
+    
+    // Unfulfilled actions / plans (with ma/però)
+    {i:"Sarei andata, ma c'era uno sciopero", e:"I would have gone, but there was a strike", c:"Unfulfilled Plans"},
+    {i:"Avrei chiamato, ma non avevo il numero", e:"I would have called, but I didn't have the number", c:"Unfulfilled Plans"},
+    {i:"Avremmo comprato l'auto, ma era troppo cara", e:"We would have bought the car, but it was too expensive", c:"Unfulfilled Plans"},
+    
+    // Unrealized desires / wishes
+    {i:"Avrei voluto viaggiare", e:"I would have wanted to travel", c:"Desires & Wishes"},
+    {i:"Avrei preferito restare", e:"I would have preferred to stay", c:"Desires & Wishes"},
+    {i:"Sarebbe stato bello", e:"It would have been nice", c:"Desires & Wishes"},
+    
+    // Giving retroactive advice
+    {i:"Avresti potuto chiamare", e:"You could have called", c:"Advice & Opinions"},
+    {i:"Avresti dovuto studiare", e:"You should have studied", c:"Advice & Opinions"},
+    {i:"Saresti potuto venire prima", e:"You could have come earlier", c:"Advice & Opinions"},
+    
+    // Expressing opinions about past
+    {i:"Sarebbe stato meglio andare in treno", e:"It would have been better to go by train", c:"Advice & Opinions"},
+    {i:"Avrebbe potuto fare di più", e:"He/she could have done more", c:"Advice & Opinions"},
+    
+    // Future of the past
+    {i:"Mi avevi promesso che saresti venuto", e:"You had promised me you would come", c:"Future of the Past", n:"past perspective"},
+    {i:"Non pensavo che avremmo trovato traffico", e:"I didn't think we would find traffic", c:"Future of the Past"},
+    {i:"Sapevo che sarebbe arrivato tardi", e:"I knew he would arrive late", c:"Future of the Past"},
+    {i:"Mi chiedevo se sarebbe andato alla festa", e:"I wondered if he was going to the party", c:"Future of the Past"},
+    
+    // Reporting unconfirmed news
+    {i:"I ladri avrebbero lasciato il paese", e:"The thieves reportedly left the country", c:"Unconfirmed News", n:"journalistic"},
+    {i:"Il ministro avrebbe volato con un jet privato", e:"The minister reportedly flew by private jet", c:"Unconfirmed News"},
+    {i:"Avrebbe accettato il nuovo lavoro", e:"She reportedly accepted the new job", c:"Unconfirmed News"},
+    
+    // Key grammar rules
+    {i:"⚠️ Mai: Se + condizionale", e:"Never use conditional after 'se' (if)", c:"Grammar Rules", n:"Use subjunctive!"},
+    {i:"✓ Se fossi andato (NOT: sarei andato)", e:"Correct: Use subjunctive in 'if' clause", c:"Grammar Rules"},
+    {i:"Avere vs Essere", e:"Motion/state verbs use essere", c:"Grammar Rules"}
+];
+
+// --- SYNONYM GROUPS (English -> Italian options) ---
+const synonymGroups = [
+    { en: "therefore/so", it: ["quindi", "perciò", "dunque", "pertanto", "di conseguenza", "allora", "per questo motivo"] },
+    { en: "despite/in spite of", it: ["nonostante", "malgrado", "a dispetto di"] },
+    { en: "nevertheless/notwithstanding", it: ["ciononostante", "tuttavia", "nondimeno"] },
+    { en: "regardless of", it: ["indipendentemente da", "a prescindere da"] },
+    { en: "although/even though", it: ["benché", "sebbene", "pur"] },
+    { en: "however", it: ["però", "comunque"] },
+    { en: "although", it: ["benché", "sebbene"] },
+    { en: "not at all", it: ["mica", "macché"] },
+    { en: "both", it: ["entrambi", "tutti e due"] },
+    { en: "until now", it: ["finora", "fino adesso"] },
+    { en: "it seems that", it: ["Pare che", "Sembra che"] },
+    { en: "it's necessary that", it: ["È necessario che", "Bisogna che"] },
+    { en: "I think/believe that", it: ["Penso che", "Credo che"] },
+    { en: "to not care", it: ["fregarsene", "non importare"] },
+    { en: "to reject/deny", it: ["rifiutare", "negare"] },
+    { en: "no way!", it: ["macché", "col cavolo!"] },
+    { en: "a lot", it: ["un botto", "tanto", "molto"] },
+    { en: "to bother/annoy", it: ["dare fastidio", "dare sui nervi"] },
+    { en: "on condition that", it: ["Purché", "A patto che", "A condizione che"] },
+    { en: "to be fed up", it: ["stufarsi di", "avere fin sopra i capelli"] },
+    { en: "whatever/whoever", it: ["Qualunque cosa", "Chiunque"] },
+    { en: "wherever/anywhere", it: ["Dovunque", "ovunque"] },
+    { en: "everywhere", it: ["dappertutto", "ovunque", "dovunque"] },
+    { en: "I hope/fear that", it: ["Spero che", "Temo che"] },
+    { en: "because/since (start of sentence)", it: ["siccome", "dato che", "visto che", "poiché", "dal momento che"] },
+    { en: "because of/due to", it: ["a causa di", "per via di"] },
+];
+
+// --- STATE ---
+const STORAGE_KEY = 'magari_v15';
+let state = { 
+    score: 0, streak: 0, bestStreak: 0, unlocked: [], 
+    currentPool: [], activeData: mainData, cardIdx: 0, mode: 'flashcards',
+    speedTimer: null, speedTimeLeft: 60, speedCorrect: 0,
+    survivalLives: 3, survivalScore: 0,
+    spellIdx: 0, spellPool: [],
+    synDirection: 'en-it', synIdx: 0, synPool: [], synSelected: []
+};
+
+// --- STORAGE ---
+function saveProgress() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            score: state.score, streak: state.streak, 
+            bestStreak: state.bestStreak, unlocked: state.unlocked
+        }));
+    } catch(e) {}
+}
+
+function loadProgress() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            const data = JSON.parse(saved);
+            Object.assign(state, data);
+            state.unlocked.forEach(id => {
+                const el = document.getElementById('b-' + id);
+                if (el) el.classList.add('unlocked');
+            });
+            updateScoreDisplay();
+            updateBadgeProgress();
+        }
+    } catch(e) {}
+}
+
+function confirmReset() {
+    if (confirm('Reset all progress?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+    }
+}
+
+function updateScoreDisplay() {
+    document.getElementById('header-score').innerText = state.score + ' pts';
+}
+
+function updateBadgeProgress() {
+    document.getElementById('badge-progress').innerText = `${state.unlocked.length} / 16 sbloccati`;
+}
+
+// --- UTILITIES ---
+function shareApp() {
+    if (navigator.share) {
+        navigator.share({ title: 'Magari', text: 'Learn Italian!', url: location.href }).catch(() => {});
+    } else {
+        alert("Copy: " + location.href);
+    }
+}
+
+function showToast(msg) {
+    document.querySelectorAll('.toast').forEach(t => t.remove());
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerText = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+// --- DECK & MODE ---
+function setDeck(type) {
+    document.querySelectorAll('.deck-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('deck-' + type).classList.add('active');
+    if (type === 'vocab') {
+        state.activeData = mainData;
+    } else if (type === 'cong') {
+        state.activeData = congiuntivoData;
+    } else if (type === 'cond') {
+        state.activeData = condizionaleData;
+    }
+    state.currentPool = shuffle(state.activeData);
+    state.cardIdx = 0;
+    setMode(state.mode);
+}
+
+function setMode(mode) {
+    if (state.speedTimer) { clearInterval(state.speedTimer); state.speedTimer = null; }
+    
+    document.querySelectorAll('.mode-view').forEach(d => d.classList.add('hidden'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    
+    const view = document.getElementById('view-' + mode);
+    const nav = document.getElementById('nav-' + mode);
+    if (view) view.classList.remove('hidden');
+    if (nav) nav.classList.add('active');
+    
+    document.getElementById('badge-case').classList.toggle('hidden', ['speed','survival','results','synonyms'].includes(mode));
+    state.mode = mode;
+
+    if (mode === 'flashcards') loadCard(state.cardIdx);
+    else if (mode === 'quiz') { state.currentPool = shuffle(state.activeData); nextQuizQuestion(); }
+    else if (mode === 'synonyms') initSynonyms();
+    else if (mode === 'match') loadMatch();
+    else if (mode === 'speed') resetSpeed();
+    else if (mode === 'spelling') initSpelling();
+    else if (mode === 'survival') resetSurvival();
+}
+
+// --- FLASHCARDS ---
+function loadCard(idx) {
+    if (idx < 0) idx = state.activeData.length - 1;
+    if (idx >= state.activeData.length) idx = 0;
+    state.cardIdx = idx;
+    document.querySelector('.card').classList.remove('is-flipped');
+    setTimeout(() => {
+        const item = state.activeData[idx];
+        document.getElementById('fc-cat').innerText = item.c;
+        document.getElementById('fc-ita').innerText = item.i;
+        document.getElementById('fc-eng').innerText = item.e;
+        document.getElementById('fc-note').innerText = item.n ? `(${item.n})` : '';
+    }, 150);
+}
+
+function flipCard() { document.querySelector('.card').classList.toggle('is-flipped'); }
+
+function nextCard(dir) {
+    const card = document.querySelector('.card');
+    if (card.classList.contains('is-flipped')) {
+        card.classList.remove('is-flipped');
+        setTimeout(() => loadCard(state.cardIdx + dir), 200);
+    } else {
+        loadCard(state.cardIdx + dir);
+    }
+}
+
+// --- QUIZ ---
+function nextQuizQuestion() {
+    document.getElementById('quiz-options').innerHTML = '';
+    document.getElementById('quiz-msg').innerText = '';
+    document.getElementById('next-btn').classList.add('hidden');
+
+    if (state.currentPool.length === 0) {
+        document.getElementById('quiz-q').innerText = "Finito! 🎉";
+        return;
+    }
+
+    const q = state.currentPool[0];
+    document.getElementById('quiz-q').innerText = q.i;
+    
+    const total = state.activeData.length;
+    const done = total - state.currentPool.length;
+    document.getElementById('quiz-count').innerText = `${done}/${total}`;
+    document.getElementById('quiz-progress').style.width = `${(done/total)*100}%`;
+
+    let opts = [q];
+    while (opts.length < 4 && state.activeData.length >= 4) {
+        const r = state.activeData[Math.floor(Math.random() * state.activeData.length)];
+        if (!opts.find(o => o.e === r.e)) opts.push(r);
+    }
+    opts = shuffle(opts);
+
+    const container = document.getElementById('quiz-options');
+    opts.forEach(opt => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt.e;
+        btn.onclick = () => handleQuizAnswer(btn, opt, q);
+        container.appendChild(btn);
+    });
+}
+
+function handleQuizAnswer(el, selected, correct) {
+    if (el.classList.contains('disabled')) return;
+    document.querySelectorAll('#quiz-options .option').forEach(o => o.classList.add('disabled'));
+
+    const isCorrect = selected.e === correct.e;
+    el.classList.add(isCorrect ? 'correct' : 'wrong');
+    document.getElementById('quiz-msg').innerText = isCorrect ? motivations[Math.floor(Math.random()*motivations.length)] : correct.e;
+    document.getElementById('quiz-msg').style.color = isCorrect ? '#27ae60' : '#e74c3c';
+
+    if (isCorrect) {
+        state.score++; state.streak++;
+        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+        state.currentPool.shift();
+    } else {
+        state.streak = 0;
+        state.currentPool.push(state.currentPool.shift());
+    }
+    
+    updateScoreDisplay();
+    saveProgress();
+    checkBadges();
+    document.getElementById('next-btn').classList.remove('hidden');
+}
+
+// --- SYNONYMS MODE ---
+function initSynonyms() {
+    state.synPool = shuffle([...synonymGroups]);
+    state.synIdx = 0;
+    state.synSelected = [];
+    loadSynonymQuestion();
+}
+
+function setSynonymDirection(dir) {
+    state.synDirection = dir;
+    document.getElementById('dir-en-it').classList.toggle('active', dir === 'en-it');
+    document.getElementById('dir-it-en').classList.toggle('active', dir === 'it-en');
+    initSynonyms();
+}
+
+function loadSynonymQuestion() {
+    state.synSelected = [];
+    document.getElementById('syn-options').innerHTML = '';
+    document.getElementById('syn-msg').innerText = '';
+    document.getElementById('syn-check-btn').classList.remove('hidden');
+    document.getElementById('syn-next-btn').classList.add('hidden');
+    
+    if (state.synIdx >= state.synPool.length) {
+        document.getElementById('syn-q').innerText = "Finito! 🎉";
+        document.getElementById('syn-prompt').innerText = "Great job!";
+        document.getElementById('syn-num').innerText = "✓";
+        document.getElementById('syn-check-btn').classList.add('hidden');
+        return;
+    }
+    
+    const group = state.synPool[state.synIdx];
+    const isEnIt = state.synDirection === 'en-it';
+    
+    document.getElementById('syn-count').innerText = `${state.synIdx + 1}/${state.synPool.length}`;
+    document.getElementById('syn-progress').style.width = `${(state.synIdx/state.synPool.length)*100}%`;
+    
+    if (isEnIt) {
+        // English -> Italian: show English, pick all Italian
+        document.getElementById('syn-prompt').innerText = "Select all Italian words for:";
+        document.getElementById('syn-q').innerText = group.en;
+        document.getElementById('syn-num').innerText = group.it.length;
+        
+        // Build options: correct ones + distractors
+        let options = [...group.it];
+        const allItalian = mainData.map(d => d.i);
+        while (options.length < 6) {
+            const distractor = allItalian[Math.floor(Math.random() * allItalian.length)];
+            if (!options.includes(distractor) && !group.it.includes(distractor)) {
+                options.push(distractor);
+            }
+        }
+        options = shuffle(options);
+        
+        const container = document.getElementById('syn-options');
+        options.forEach(opt => {
+            const btn = document.createElement('div');
+            btn.className = 'option';
+            btn.innerText = opt;
+            btn.dataset.correct = group.it.includes(opt) ? 'true' : 'false';
+            btn.onclick = () => toggleSynonymOption(btn);
+            container.appendChild(btn);
+        });
+    } else {
+        // Italian -> English: show one Italian word, pick all English meanings
+        document.getElementById('syn-prompt').innerText = "This Italian word can also mean:";
+        const mainWord = group.it[0];
+        document.getElementById('syn-q').innerText = mainWord;
+        
+        // Find other meanings for similar words
+        const relatedMeanings = [group.en];
+        // Add some distractors
+        const allEnglish = mainData.map(d => d.e);
+        let options = [group.en];
+        while (options.length < 5) {
+            const distractor = allEnglish[Math.floor(Math.random() * allEnglish.length)];
+            if (!options.includes(distractor)) {
+                options.push(distractor);
+            }
+        }
+        options = shuffle(options);
+        document.getElementById('syn-num').innerText = "1+";
+        
+        const container = document.getElementById('syn-options');
+        options.forEach(opt => {
+            const btn = document.createElement('div');
+            btn.className = 'option';
+            btn.innerText = opt;
+            btn.dataset.correct = opt === group.en ? 'true' : 'false';
+            btn.onclick = () => toggleSynonymOption(btn);
+            container.appendChild(btn);
+        });
+    }
+}
+
+function toggleSynonymOption(el) {
+    el.classList.toggle('selected');
+    const opt = el.innerText;
+    if (state.synSelected.includes(opt)) {
+        state.synSelected = state.synSelected.filter(s => s !== opt);
+    } else {
+        state.synSelected.push(opt);
+    }
+}
+
+function checkSynonyms() {
+    const options = document.querySelectorAll('#syn-options .option');
+    let allCorrect = true;
+    let gotAny = false;
+    
+    options.forEach(opt => {
+        const isCorrect = opt.dataset.correct === 'true';
+        const isSelected = opt.classList.contains('selected');
+        
+        if (isCorrect) {
+            opt.classList.add('correct');
+            if (isSelected) gotAny = true;
+            if (!isSelected) allCorrect = false;
+        } else if (isSelected) {
+            opt.classList.add('wrong');
+            allCorrect = false;
+        }
+        opt.style.pointerEvents = 'none';
+    });
+    
+    if (allCorrect) {
+        document.getElementById('syn-msg').innerText = motivations[Math.floor(Math.random()*motivations.length)] + " (+2)";
+        document.getElementById('syn-msg').style.color = '#27ae60';
+        state.score += 2;
+        state.streak++;
+        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    } else if (gotAny) {
+        document.getElementById('syn-msg').innerText = "Partially correct (+1)";
+        document.getElementById('syn-msg').style.color = '#f39c12';
+        state.score += 1;
+    } else {
+        document.getElementById('syn-msg').innerText = "Try to get them all!";
+        document.getElementById('syn-msg').style.color = '#e74c3c';
+        state.streak = 0;
+    }
+    
+    updateScoreDisplay();
+    saveProgress();
+    checkBadges();
+    
+    document.getElementById('syn-check-btn').classList.add('hidden');
+    document.getElementById('syn-next-btn').classList.remove('hidden');
+}
+
+function nextSynonymQuestion() {
+    state.synIdx++;
+    loadSynonymQuestion();
+}
+
+// --- MATCH ---
+let selectedTile = null;
+function loadMatch() {
+    const grid = document.getElementById('match-grid');
+    grid.innerHTML = '';
+    selectedTile = null;
+    
+    const subset = shuffle(state.activeData).slice(0, 6);
+    let tiles = [];
+    subset.forEach(item => {
+        tiles.push({id: item.i, txt: item.i});
+        tiles.push({id: item.i, txt: item.e});
+    });
+    tiles = shuffle(tiles);
+
+    tiles.forEach(t => {
+        const el = document.createElement('div');
+        el.className = 'option';
+        el.style.cssText = 'text-align:center; justify-content:center; min-height:50px; font-size:0.8rem;';
+        el.innerText = t.txt;
+        el.onclick = () => handleMatch(el, t);
+        grid.appendChild(el);
+    });
+}
+
+function handleMatch(el, tile) {
+    if (el.classList.contains('correct') || el === selectedTile) return;
+    
+    if (!selectedTile) {
+        selectedTile = el;
+        el.classList.add('selected');
+        el.dataset.id = tile.id;
+    } else {
+        if (selectedTile.dataset.id === tile.id) {
+            el.classList.add('correct');
+            selectedTile.classList.add('correct');
+            setTimeout(() => { el.style.visibility = 'hidden'; selectedTile.style.visibility = 'hidden'; selectedTile = null; }, 300);
+            state.score += 2; state.streak++;
+            if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+            updateScoreDisplay(); saveProgress(); checkBadges();
+            if (document.querySelectorAll('#match-grid .option:not(.correct)').length === 0) {
+                setTimeout(loadMatch, 600);
+            }
+        } else {
+            el.classList.add('wrong'); selectedTile.classList.add('wrong');
+            state.streak = 0; saveProgress();
+            const t1 = el, t2 = selectedTile;
+            setTimeout(() => { t1.classList.remove('wrong','selected'); t2.classList.remove('wrong','selected'); }, 400);
+        }
+        selectedTile.classList.remove('selected');
+        selectedTile = null;
+    }
+}
+
+// --- SPEED ---
+function resetSpeed() {
+    state.speedTimeLeft = 60; state.speedCorrect = 0;
+    document.getElementById('speed-timer').style.width = '100%';
+    document.getElementById('speed-time').innerText = '60';
+    document.getElementById('speed-correct').innerText = '0';
+    document.getElementById('speed-q').innerText = 'Ready?';
+    document.getElementById('speed-options').innerHTML = '';
+    document.getElementById('speed-start-btn').classList.remove('hidden');
+}
+
+function startSpeedRound() {
+    document.getElementById('speed-start-btn').classList.add('hidden');
+    state.currentPool = shuffle(state.activeData);
+    state.speedCorrect = 0; state.speedTimeLeft = 60;
+    nextSpeedQ();
+    
+    state.speedTimer = setInterval(() => {
+        state.speedTimeLeft--;
+        document.getElementById('speed-time').innerText = state.speedTimeLeft;
+        document.getElementById('speed-timer').style.width = `${(state.speedTimeLeft/60)*100}%`;
+        if (state.speedTimeLeft <= 0) { clearInterval(state.speedTimer); endSpeed(); }
+    }, 1000);
+}
+
+function nextSpeedQ() {
+    if (state.currentPool.length === 0) state.currentPool = shuffle(state.activeData);
+    const q = state.currentPool.shift();
+    document.getElementById('speed-q').innerText = q.i;
+    
+    let opts = [q];
+    while (opts.length < 4) {
+        const r = state.activeData[Math.floor(Math.random() * state.activeData.length)];
+        if (!opts.find(o => o.e === r.e)) opts.push(r);
+    }
+    opts = shuffle(opts);
+    
+    const container = document.getElementById('speed-options');
+    container.innerHTML = '';
+    opts.forEach(opt => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt.e;
+        btn.onclick = () => {
+            if (opt.e === q.e) {
+                state.speedCorrect++; state.score++; state.streak++;
+                if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+                document.getElementById('speed-correct').innerText = state.speedCorrect;
+                updateScoreDisplay(); saveProgress(); checkBadges();
+            } else { state.streak = 0; saveProgress(); }
+            nextSpeedQ();
+        };
+        container.appendChild(btn);
+    });
+}
+
+function endSpeed() {
+    showResults('⏱️', "Time's Up!", state.speedCorrect, 'correct', () => setMode('speed'));
+}
+
+// --- SPELLING ---
+function initSpelling() {
+    state.spellPool = shuffle(state.activeData).slice(0, 12);
+    state.spellIdx = 0;
+    loadSpellQ();
+}
+
+function loadSpellQ() {
+    const input = document.getElementById('spell-input');
+    if (state.spellIdx >= state.spellPool.length) {
+        document.getElementById('spell-english').innerText = "Done! 🎉";
+        document.getElementById('spell-hint').innerText = '';
+        input.classList.add('hidden');
+        document.getElementById('spell-check-btn').classList.add('hidden');
+        return;
+    }
+    
+    const q = state.spellPool[state.spellIdx];
+    document.getElementById('spell-english').innerText = q.e;
+    document.getElementById('spell-hint').innerText = `Starts with "${q.i.charAt(0).toUpperCase()}"`;
+    input.value = ''; input.className = 'spelling-input'; input.classList.remove('hidden');
+    document.getElementById('spell-msg').innerText = '';
+    document.getElementById('spell-check-btn').classList.remove('hidden');
+    document.getElementById('spell-next-btn').classList.add('hidden');
+    document.getElementById('spell-count').innerText = `${state.spellIdx+1}/${state.spellPool.length}`;
+    document.getElementById('spell-progress').style.width = `${(state.spellIdx/state.spellPool.length)*100}%`;
+    input.focus();
+}
+
+function checkSpelling() {
+    const q = state.spellPool[state.spellIdx];
+    const input = document.getElementById('spell-input');
+    const answer = input.value.trim().toLowerCase();
+    const correct = q.i.toLowerCase();
+    const isCorrect = answer === correct || answer.normalize("NFD").replace(/[\u0300-\u036f]/g,"") === correct.normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+    
+    input.classList.add(isCorrect ? 'correct' : 'wrong');
+    document.getElementById('spell-msg').innerHTML = isCorrect ? motivations[Math.floor(Math.random()*motivations.length)] + ' (+2)' : `<strong>${q.i}</strong>`;
+    document.getElementById('spell-msg').style.color = isCorrect ? '#27ae60' : '#e74c3c';
+    
+    if (isCorrect) {
+        state.score += 2; state.streak++;
+        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    } else { state.streak = 0; }
+    
+    updateScoreDisplay(); saveProgress(); checkBadges();
+    document.getElementById('spell-check-btn').classList.add('hidden');
+    document.getElementById('spell-next-btn').classList.remove('hidden');
+}
+
+function nextSpellingQuestion() { state.spellIdx++; loadSpellQ(); }
+
+document.addEventListener('keypress', e => {
+    if (e.key === 'Enter' && state.mode === 'spelling') {
+        if (!document.getElementById('spell-check-btn').classList.contains('hidden')) checkSpelling();
+        else if (!document.getElementById('spell-next-btn').classList.contains('hidden')) nextSpellingQuestion();
+    }
+});
+
+// --- SURVIVAL ---
+function resetSurvival() {
+    state.survivalLives = 3; state.survivalScore = 0;
+    document.getElementById('survival-score').innerText = '0';
+    document.getElementById('survival-q').innerText = '💀';
+    document.getElementById('survival-options').innerHTML = '';
+    document.getElementById('survival-msg').innerText = '';
+    document.getElementById('survival-next-btn').classList.add('hidden');
+    document.getElementById('survival-start-btn').classList.remove('hidden');
+    document.querySelectorAll('#lives-display .life').forEach(l => l.classList.remove('lost'));
+}
+
+function startSurvival() {
+    document.getElementById('survival-start-btn').classList.add('hidden');
+    state.currentPool = shuffle(state.activeData);
+    state.survivalLives = 3; state.survivalScore = 0;
+    nextSurvivalQ();
+}
+
+function nextSurvivalQuestion() { nextSurvivalQ(); }
+
+function nextSurvivalQ() {
+    document.getElementById('survival-msg').innerText = '';
+    document.getElementById('survival-next-btn').classList.add('hidden');
+    
+    if (state.currentPool.length === 0) state.currentPool = shuffle(state.activeData);
+    const q = state.currentPool.shift();
+    document.getElementById('survival-q').innerText = q.i;
+    
+    let opts = [q];
+    while (opts.length < 4) {
+        const r = state.activeData[Math.floor(Math.random() * state.activeData.length)];
+        if (!opts.find(o => o.e === r.e)) opts.push(r);
+    }
+    opts = shuffle(opts);
+    
+    const container = document.getElementById('survival-options');
+    container.innerHTML = '';
+    opts.forEach(opt => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt.e;
+        btn.onclick = () => handleSurvivalAnswer(btn, opt, q);
+        container.appendChild(btn);
+    });
+}
+
+function handleSurvivalAnswer(el, selected, correct) {
+    if (el.classList.contains('disabled')) return;
+    document.querySelectorAll('#survival-options .option').forEach(o => o.classList.add('disabled'));
+    
+    const isCorrect = selected.e === correct.e;
+    el.classList.add(isCorrect ? 'correct' : 'wrong');
+    document.getElementById('survival-msg').innerText = isCorrect ? motivations[Math.floor(Math.random()*motivations.length)] : correct.e;
+    document.getElementById('survival-msg').style.color = isCorrect ? '#27ae60' : '#e74c3c';
+    
+    if (isCorrect) {
+        state.survivalScore++; state.score++; state.streak++;
+        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+        document.getElementById('survival-score').innerText = state.survivalScore;
+    } else {
+        state.survivalLives--; state.streak = 0;
+        document.querySelectorAll('#lives-display .life')[3 - state.survivalLives - 1]?.classList.add('lost');
+        if (state.survivalLives <= 0) { setTimeout(endSurvival, 800); updateScoreDisplay(); saveProgress(); return; }
+    }
+    
+    updateScoreDisplay(); saveProgress(); checkBadges();
+    document.getElementById('survival-next-btn').classList.remove('hidden');
+}
+
+function endSurvival() {
+    showResults('💀', 'Game Over!', state.survivalScore, 'survived', () => setMode('survival'));
+}
+
+// --- RESULTS ---
+function showResults(icon, title, score, label, retryFn) {
+    document.querySelectorAll('.mode-view').forEach(d => d.classList.add('hidden'));
+    document.getElementById('view-results').classList.remove('hidden');
+    document.getElementById('badge-case').classList.add('hidden');
+    document.getElementById('results-icon').innerText = icon;
+    document.getElementById('results-title').innerText = title;
+    document.getElementById('results-score').innerText = score;
+    document.getElementById('results-label').innerText = label;
+    document.getElementById('results-retry-btn').onclick = retryFn;
+}
+
+// --- BADGES ---
+const badgeThresholds = [
+    {id:'wolf',points:1},{id:'pizza',points:25},{id:'caffe',points:50},{id:'michel',points:75},
+    {id:'vespa',points:100},{id:'gondola',points:125},{id:'colosseo',points:150},{id:'maestro',points:175},
+    {id:'commedia',points:200},{id:'sommelier',points:225},{id:'stella',points:250},{id:'campione',points:275},{id:'crown',points:311}
+];
+const streakThresholds = [{id:'corno',streak:5},{id:'fire',streak:10},{id:'vesuvio',streak:15}];
+
+function checkBadges() {
+    badgeThresholds.forEach(b => { if (state.score >= b.points && !state.unlocked.includes(b.id)) unlockBadge(b.id); });
+    streakThresholds.forEach(b => { if (state.streak >= b.streak && !state.unlocked.includes(b.id)) unlockBadge(b.id); });
+}
+
+function unlockBadge(id) {
+    if (state.unlocked.includes(id)) return;
+    state.unlocked.push(id);
+    saveProgress();
+    const el = document.getElementById('b-' + id);
+    if (el) {
+        el.classList.add('unlocked');
+        el.animate([{transform:'scale(1)'},{transform:'scale(1.4)'},{transform:'scale(1)'}], {duration:400});
+    }
+    updateBadgeProgress();
+    showToast('🏆 Badge unlocked!');
+    if (id === 'crown') setTimeout(() => alert('👑 CONGRATULAZIONI!\n\nYou are a true master!'), 500);
+}
+
+// --- INIT ---
+document.addEventListener('DOMContentLoaded', () => {
+    loadProgress();
+    state.currentPool = shuffle(mainData);
+    loadCard(0);
+});
+</script>
+</body>
+</html>
